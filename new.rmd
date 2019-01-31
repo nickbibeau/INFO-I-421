@@ -1,18 +1,300 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Week - Chapter 5"
+author: "Nicholas Bibeau"
+date: "January 27, 2019"
+output: html_document
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
-```{r}
-plot(cars)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+# R Week 3 Book2 Chapter 5 Advanced Data Structures
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+## 5.1 data.frames
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+### Creating Data Frame
+```{r DataFrameCreation}
+# Enumerating vectors for later use in data frame
+x <- 10:1
+y <- -4:5
+q <-c("Hockey", "football", "Baseball", "Curling", "Rugby", "Lacrosse", "Basketball", "Tennis", "Cricket", "Soccer")
+
+# Creating data frame from vectors
+theDF <- data.frame(x, y, q)
+
+# Viewing data frame
+theDF
+
+# Creating data frame with labels (Recommended)
+theDF <- data.frame(First=x, Second=y, Sport=q)
+
+#Viewing revised data frame
+theDF
+```
+
+### Examing data frame
+
+You can also embed plots, for example:
+
+```{r ExamineDataFrame}
+# Number of Rows
+nrow(theDF)
+
+# Number of Columns
+ncol(theDF)
+
+# Dimensions
+dim(theDF)
+
+# View Column Names
+names(theDF)
+
+# View Name of Third Column
+names(theDF)[3]
+
+# Check Row Names
+rownames(theDF)
+
+# Assign Row Names
+rownames(theDF) <- c("One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten")
+rownames(theDF)
+
+# Reset Row Names to Default Index
+rownames(theDF) <- NULL
+rownames(theDF)
+
+#Use "head" function to examine first few rows of data frame
+head(theDF)
+head(theDF, n=7)
+
+#Use "tail" function to examine last few rows of data frame
+tail(theDF)
+
+# Examine class of the data frame
+class(theDF)
+```
+
+### Further Exmination of Data Frame
+```{r ExamineElements}
+# Viewing Sport Column
+theDF$Sport
+
+# View element in third row, second column
+theDF[3,2]
+
+#View thrid row, columns 2 and 3
+theDF[3, 2:3]
+
+# View rows 3 and 5, column 2
+theDF[c(3,5), 2]
+
+# View rows 3 and 5, columns 2 through 3
+theDF[c(3, 5), 2:3]
+
+# View all of column 3
+theDF[, 3]
+
+# View all of columns 2 and 3
+theDF[, 2:3]
+
+# View all of row 2
+theDF[2, ]
+
+# View all of rows 2 through 4
+theDF[2:4, ]
+
+# View multipe columns by name
+theDF[, c("First", "Sport")]
+
+# View just the "Sport" column by name
+theDF[, "Sport"]
+
+# Check class of column
+class(theDF[, "Sport"])
+
+# View just the "Sport" column in a data frame
+theDF["Sport"]
+
+# Check class of column in that data frame
+class(theDF["Sport"])
+
+# View and examine just the Sport column as a factor
+theDF[["Sport"]]
+class(theDF[["Sport"]])
+
+# Using "drop=False" argument to guarantee single-column data frame
+theDF[, "Sport", drop=FALSE]
+class(theDF[, "Sport", drop=FALSE])
+
+theDF[, 3, drop=FALSE]
+class(theDF[, 3, drop=FALSE])
+```
+
+### Using Model.Matrix
+```{r ModelMatrix}
+# Create factor
+newFactor <- factor(c("Pennsylvania", "New York", "New Jersey", "New York", "Tennessee", "Massachusetts",
+                      "Pennsylvania", "New York"))
+
+# Create model.matrix from factor
+model.matrix(~ newFactor - 1)
+
+```
+
+## 5.2 Lists
+
+### List Basics
+
+```{r ListBasics}
+# Create three-element list
+list(1, 2, 3)
+
+# Create single-element list of a three-element vector
+list(c(1, 2, 3))
+
+# Create two-element list with first element being a three-element vector and the second being a five-element vector
+list3 <- list(c(1, 2, 3), 3:7)
+
+# Create a two-element list with [1] as data.frame and [2] as a 10-element vector
+list(theDF, 1:10)
+
+# Create three-element list with [1] as data.frame, [2] as vector, [3] as two-vector list
+list5 <- list(theDF, 1:10, list3)
+list5
+```
+
+```{r clearnames, echo=FALSE}
+# Reset names for list5
+names(list5) <- NULL
+```
+
+
+### Using names function with lists
+```{r namesList}
+# View names
+names(list5)
+
+# Assign names
+names(list5) <-c("data.frame", "vector", "list")
+names(list5)
+
+# View list5
+list5
+
+# Assign names to list elements during creation using name-value pairs
+list6 <- list(TheDataFrame=theDF, TheVector=1:10, TheList=list3)
+names(list6)
+list6
+
+# Access element of a list by element number
+list5[[1]]
+
+# Access element of a list by element name
+list5[["data.frame"]]
+
+# Accessing an element of an element
+list5[[1]]$Sport
+list5[[1]][, "Second"]
+list5[[1]][, "Second", drop=FALSE]
+```
+
+### Appending elements to a list
+```{r AppendToList}
+# Check length of list
+length(list5)
+
+# Add an unnamed fourth element
+list5[[4]] <- 2
+length(list5)
+
+# Add a named fifth element
+list5[["NewElement"]] <- 3:6
+length(list5)
+
+# Review list and list names
+names(list5)
+list5
+```
+
+## 5.3 Matrices
+
+### Basic Matrix Functions
+```{r BasicMatrices}
+# Create 5x2 matrix
+A <- matrix(1:10, nrow=5)
+
+# Create another 5x2 matrix
+B <- matrix(21:30, nrow=5)
+
+# Create third 5x2 matrix
+C <- matrix(21:40, nrow=2)
+
+# View matrices
+A
+B
+C
+
+# Examine matrix
+nrow(A)
+ncol(A)
+dim(A)
+
+# Add matrices
+A + B
+
+# Multiply matrices
+A * B
+
+# Check for equality among elements
+A == B
+
+# Transpose matrix B for matrix multiplication with A
+A %*% t(B)
+
+# View column and row names for matrix A
+colnames(A)
+rownames(A)
+
+# Assign column and row names for matrix A
+colnames(A) <- c("Left", "Right")
+rownames(A) <- c("1st", "2nd", "3rd", "4th", "5th")
+
+# View column and row names for matrix B
+colnames(B)
+rownames(B)
+
+# Assign column and row names for matrix B
+colnames(B) <- c("First", "Second")
+rownames(B) <- c("One", "Two", "Three", "Four", "Five")
+
+# View column and row names for matrix C
+colnames(C)
+rownames(C)
+
+# Assign column and row names for matrix C
+colnames(C) <- LETTERS[1:10]
+rownames(C) <- c("Top", "Bottom")
+
+# Transpose Matrix A
+t(A)
+
+# Matrix multiplication A * C
+A %*% C
+```
+
+## 5.4 Arrays
+
+### Array Basics
+
+```{r ArrayBasics}
+# Create an array
+theArray <- array(1:12, dim=c(2, 3, 2))
+theArray
+
+# Examining the array
+theArray[1, , ]
+theArray[1, , 1]
+theArray[, , 1]
+```
+
