@@ -2,7 +2,10 @@
 title: "Exercise 5 - Bibeau"
 author: "Nicholas Bibeau"
 date: "January 31, 2019"
-output: html_document
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
@@ -80,5 +83,94 @@ iris[, colnames(iris) !="Species"]
 
 # Select rows whose Species equals to 'setosa'
 iris[iris$Species == "setosa", ]
+```
+
+
+### 5.2.6 Displaying column-wise statistics data
+```{r 5.2.6}
+summary(iris)
+
+# Min. represents the smallest value in each column.
+# 1st Qu. represents the maximum value in the lowest 25% of values in each column (the upper limit of the 1st quartile.)
+# Median represents the midpoint in the distribution of values in each column (the upper limit of the 2nd quartile.)
+# Mean represents the average of values in each column.
+# 3rd Qu. represents the maximum value in the 50-75% range of values in each column (the upper limit of the 3rd quartile.)
+# Max represents the largest value in each column.
+```
+
+## 5.3 E3
+```{r 5.3E3}
+df <- data.frame(X = -2:2, Y = 1:5)
+result1 <- df$Y[ df$X > 0 ]
+result2 <- df[ df$X > 0, ]
+
+# result1 will provide a vector of Y-values from df corresponding to X-values greater than 0.
+# result2 will output a data.frame of X-values in df where X > 0, along with corresponding Y-values.
+```
+
+## 5.4 E4
+```{r 5.4E4}
+# Import the built-in mtcars data
+mtcars
+
+# Look at the help file for mtcars to understand the origin of the data
+help(mtcars)
+
+# Print only the first five rows.
+head(mtcars, 5)
+
+# Print the last five rows.
+tail(mtcars, 5)
+
+# How many rows and columns does the data have?
+dim(mtcars)
+# mtcars has 32 rows and 11 columns
+
+
+# Look at the data in the RStudio data viewer (if you are using RStudio).
+
+
+# Print the mpg column of the data.
+mtcars$mpg
+
+#Print the mpg column of the data where the corresponding cyl column is 6.
+mtcars$mpg[mtcars$cyl == 6]
+
+# Print all rows of the data where cyl is 6.
+mtcars[mtcars$cyl == 6, ]
+
+# Print all rows of the data where mpg is greater than 25, but only for the mpg and cyl columns.
+mtcars[mtcars$mpg > 25, c("mpg", "cyl")]
+```
+
+## 5.5 E5
+```{r 5.5E5}
+# Print the built-in diamonds data
+diamonds
+
+# Open the help page for the diamonds data. Understand the origin of the data and the properties in the data.
+help(diamonds)
+
+# View the first five rows
+head(diamonds, 5)
+
+# Find the row count and column count
+dim(diamonds)
+# There are 53840 rows and 10 columns in diamonds
+
+# Select rows whose cut equals to Very Good. And find the total of rows in the returned subset
+diamonds[diamonds$cut == "Very Good", ]
+# There are 12,082 rows where cut equals Very Good.
+
+# Find how many diamonds whose carat is greater than 3.0
+count(diamonds[diamonds$carat > 3.0, ])
+# There are 32 diamonds with carat greater than 3.0
+
+# Return rows where color is D, but only for the color and cut columns
+diamonds[diamonds$color == "D", c("color", "cut"), drop=FALSE]
+
+# Run the summary command with the diamonds data. Read the average price.
+summary(diamonds)
+# The average diamond price is $3933.
 ```
 
