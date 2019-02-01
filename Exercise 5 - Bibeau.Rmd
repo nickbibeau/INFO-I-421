@@ -1,0 +1,84 @@
+---
+title: "Exercise 5 - Bibeau"
+author: "Nicholas Bibeau"
+date: "January 31, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+# 5 Exercise
+
+## 5.1 E1
+```{r 5.1E1}
+#Write R code to create the following data frame of 5 rows and 5 named columns, store the data in a name weather, and print the data.
+weather <- data.frame( 
+ Outlook = c("sunny", "sunny", "overcast", NULL, NULL),
+ Temperature = c(85, 80, 83, NULL, NULL),
+ Humidity = c(85, 90, 86, NULL, NULL),
+ Windy = c(FALSE, TRUE, FALSE, NULL, NULL),
+ Play = c("no", "no", "yes", NULL, NULL)
+ )
+
+print(weather)
+```
+
+
+## 5.2 E2
+```{r 5.2E2}
+# Import built-in iris dataset
+iris
+```
+
+### 5.2.1 Opening the help file of a built-in dataset
+```{r 5.2.1}
+# Opening help file for iris dataset
+help(iris)
+```
+
+### 5.2.2 Examining the object type
+```{r 5.2.2}
+# View object type of iris dataset
+class(iris)
+```
+
+### 5.2.3 Retrieving a column from a dataframe
+```{r 5.2.3}
+# Retrieve species column from iris dataset
+iris$Species
+
+# Retrieve Petal.Length column from iris dataset
+iris$Petal.Length
+```
+
+### 5.2.4 Finding data type of a column (attribute)
+```{r 5.2.4}
+# Find the type of column vector Species in iris
+class(iris$Species)
+
+# Find the type of column vector Sepal.Length in iris
+class(iris$Sepal.Length)
+```
+
+### 5.2.5 Subscripting
+```{r 5.2.5}
+# Retrive first 50 rows from iris dataset
+iris[1:50,]
+
+# Retrieve the first 2 columns (attributes) of iris
+iris[, 1:2]
+
+# Retrieve the columns Sepal.Length and Petal.Length
+iris[, c("Sepal.Length", "Petal.Length")]
+
+# Retrieve All of the columns excluding the last column Species
+iris[, colnames(iris) !="Species"]
+
+# Select rows whose Species equals to 'setosa'
+iris[iris$Species == "setosa", ]
+```
+
