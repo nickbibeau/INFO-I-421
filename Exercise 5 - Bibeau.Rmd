@@ -39,49 +39,63 @@ iris
 
 ### 5.2.1 Opening the help file of a built-in dataset
 ```{r 5.2.1}
-# Opening help file for iris dataset
 help(iris)
 ```
 
 ### 5.2.2 Examining the object type
 ```{r 5.2.2}
-# View object type of iris dataset
 class(iris)
 ```
 
 ### 5.2.3 Retrieving a column from a dataframe
-```{r 5.2.3}
-# Retrieve species column from iris dataset
-iris$Species
 
-# Retrieve Petal.Length column from iris dataset
+#### Retrieving Species column from iris dataset
+```{r}
+iris$Species
+```
+
+#### Retrieving Petal.Length column from iris dataset
+```{r}
 iris$Petal.Length
 ```
 
 ### 5.2.4 Finding data type of a column (attribute)
-```{r 5.2.4}
-# Find the type of column vector Species in iris
-class(iris$Species)
 
-# Find the type of column vector Sepal.Length in iris
+#### Finding the type of column vector Species in iris
+```{r irisColumnType1}
+class(iris$Species)
+```
+
+#### Finding the type of column vector Sepal.Length in iris
+```{r irisColumnType2}
 class(iris$Sepal.Length)
 ```
 
 ### 5.2.5 Subscripting
+
+#### Retrieving first 50 rows of iris dataset
 ```{r 5.2.5}
-# Retrive first 50 rows from iris dataset
 iris[1:50,]
+```
 
-# Retrieve the first 2 columns (attributes) of iris
+
+#### Retrieve the first 2 columns (attributes) of iris
+```{r irisColumns1and2}
 iris[, 1:2]
+```
 
-# Retrieve the columns Sepal.Length and Petal.Length
+#### Retrieving the columns Sepal.Length and Petal.Length
+```{r irisPetalLenthAndSepalLength}
 iris[, c("Sepal.Length", "Petal.Length")]
+```
 
-# Retrieve All of the columns excluding the last column Species
+#### Retrieving All of the columns excluding the last column Species
+```{r irisExceptSpecies}
 iris[, colnames(iris) !="Species"]
+```
 
-# Select rows whose Species equals to 'setosa'
+#### Viewing rows for Species 'setosa'
+```{r irisSetosa}
 iris[iris$Species == "setosa", ]
 ```
 
@@ -108,38 +122,58 @@ result2 <- df[ df$X > 0, ]
 # result2 will output a data.frame of X-values in df where X > 0, along with corresponding Y-values.
 ```
 
-## 5.4 E4
+## 5.4 E4 mtcars
+
+### Importing the built-in mtcars dataset
 ```{r 5.4E4}
-# Import the built-in mtcars data
 mtcars
+```
 
-# Look at the help file for mtcars to understand the origin of the data
+### Understanding mtcars dataset by using help
+```{r mtcarsHelp}
 help(mtcars)
+```
 
-# Print only the first five rows.
+### First five rows of mtcars dataset
+```{r mtcarsHead}
 head(mtcars, 5)
+```
 
-# Print the last five rows.
+### Last five rows of mtcars dataset
+```{r mtcarsTail}
 tail(mtcars, 5)
+```
 
-# How many rows and columns does the data have?
+### Dimensions of mtcars dataset
+```{r mtcarsDimensions}
 dim(mtcars)
 # mtcars has 32 rows and 11 columns
+```
 
+### Viewing mtcars dataset
+```{r mtcarsView}
+data(mtcars)
+View(mtcars)
+```
 
-# Look at the data in the RStudio data viewer (if you are using RStudio).
-
-
-# Print the mpg column of the data.
+### MPG
+```{r mtcarsMPG}
 mtcars$mpg
+```
 
-#Print the mpg column of the data where the corresponding cyl column is 6.
+### MPG of 6-cylinder vehicles
+```{r mtcars6CylMPG}
 mtcars$mpg[mtcars$cyl == 6]
+```
 
-# Print all rows of the data where cyl is 6.
+### 6-cylinder vehicles
+```{r mtcars6Cyl}
 mtcars[mtcars$cyl == 6, ]
+```
 
-# Print all rows of the data where mpg is greater than 25, but only for the mpg and cyl columns.
+
+### Printing rows of where mpg is greater than 25, but only for the mpg and cyl columns.
+```{r mtcarsMPG>25}
 mtcars[mtcars$mpg > 25, c("mpg", "cyl")]
 ```
 
@@ -147,29 +181,43 @@ mtcars[mtcars$mpg > 25, c("mpg", "cyl")]
 ```{r 5.5E5}
 # Print the built-in diamonds data
 diamonds
+```
 
-# Open the help page for the diamonds data. Understand the origin of the data and the properties in the data.
+### Viewing help for diamonds dataset
+```{r diamondsHelp}
 help(diamonds)
+```
 
-# View the first five rows
+### Viewing first five rows of the diamonds dataset
+```{r diamondsHead}
 head(diamonds, 5)
+```
 
-# Find the row count and column count
+### Finding dimensions (rows and columns) of the diamonds dataset
+```{r diamondsDimensions}
 dim(diamonds)
 # There are 53840 rows and 10 columns in diamonds
+```
 
-# Select rows whose cut equals to Very Good. And find the total of rows in the returned subset
+### Diamonds of cut "Very Good"
+```{r diamondsCutVeryGood}
 diamonds[diamonds$cut == "Very Good", ]
 # There are 12,082 rows where cut equals Very Good.
+```
 
-# Find how many diamonds whose carat is greater than 3.0
+### Diamonds larger than 3.0 carat
+```{r diamondsCaratGreaterThan3}
 count(diamonds[diamonds$carat > 3.0, ])
 # There are 32 diamonds with carat greater than 3.0
+```
 
-# Return rows where color is D, but only for the color and cut columns
+### Diamonds of color "D"
+```{r diamondsColorD}
 diamonds[diamonds$color == "D", c("color", "cut"), drop=FALSE]
+```
 
-# Run the summary command with the diamonds data. Read the average price.
+### Diamonds Summary
+```{r diamondsSummary}
 summary(diamonds)
 # The average diamond price is $3933.
 ```

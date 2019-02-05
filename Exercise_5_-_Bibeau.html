@@ -204,8 +204,27 @@ $(document).ready(function () {
 <li><a href="#displaying-column-wise-statistics-data">5.2.6 Displaying column-wise statistics data</a></li>
 </ul></li>
 <li><a href="#e3">5.3 E3</a></li>
-<li><a href="#e4">5.4 E4</a></li>
-<li><a href="#e5">5.5 E5</a></li>
+<li><a href="#e4-mtcars">5.4 E4 mtcars</a><ul>
+<li><a href="#importing-the-built-in-mtcars-dataset">Importing the built-in mtcars dataset</a></li>
+<li><a href="#understanding-mtcars-dataset-by-using-help">Understanding mtcars dataset by using help</a></li>
+<li><a href="#first-five-rows-of-mtcars-dataset">First five rows of mtcars dataset</a></li>
+<li><a href="#last-five-rows-of-mtcars-dataset">Last five rows of mtcars dataset</a></li>
+<li><a href="#dimensions-of-mtcars-dataset">Dimensions of mtcars dataset</a></li>
+<li><a href="#viewing-mtcars-dataset">Viewing mtcars dataset</a></li>
+<li><a href="#mpg">MPG</a></li>
+<li><a href="#mpg-of-6-cylinder-vehicles">MPG of 6-cylinder vehicles</a></li>
+<li><a href="#cylinder-vehicles">6-cylinder vehicles</a></li>
+<li><a href="#printing-rows-of-where-mpg-is-greater-than-25-but-only-for-the-mpg-and-cyl-columns.">Printing rows of where mpg is greater than 25, but only for the mpg and cyl columns.</a></li>
+</ul></li>
+<li><a href="#e5">5.5 E5</a><ul>
+<li><a href="#viewing-help-for-diamonds-dataset">Viewing help for diamonds dataset</a></li>
+<li><a href="#viewing-first-five-rows-of-the-diamonds-dataset">Viewing first five rows of the diamonds dataset</a></li>
+<li><a href="#finding-dimensions-rows-and-columns-of-the-diamonds-dataset">Finding dimensions (rows and columns) of the diamonds dataset</a></li>
+<li><a href="#diamonds-of-cut-very-good">Diamonds of cut “Very Good”</a></li>
+<li><a href="#diamonds-larger-than-3.0-carat">Diamonds larger than 3.0 carat</a></li>
+<li><a href="#diamonds-of-color-d">Diamonds of color “D”</a></li>
+<li><a href="#diamonds-summary">Diamonds Summary</a></li>
+</ul></li>
 </ul></li>
 </ul>
 </div>
@@ -386,20 +405,19 @@ iris</code></pre>
 ## 150          5.9         3.0          5.1         1.8  virginica</code></pre>
 <div id="opening-the-help-file-of-a-built-in-dataset" class="section level3">
 <h3>5.2.1 Opening the help file of a built-in dataset</h3>
-<pre class="r"><code># Opening help file for iris dataset
-help(iris)</code></pre>
+<pre class="r"><code>help(iris)</code></pre>
 <pre><code>## starting httpd help server ... done</code></pre>
 </div>
 <div id="examining-the-object-type" class="section level3">
 <h3>5.2.2 Examining the object type</h3>
-<pre class="r"><code># View object type of iris dataset
-class(iris)</code></pre>
+<pre class="r"><code>class(iris)</code></pre>
 <pre><code>## [1] &quot;data.frame&quot;</code></pre>
 </div>
 <div id="retrieving-a-column-from-a-dataframe" class="section level3">
 <h3>5.2.3 Retrieving a column from a dataframe</h3>
-<pre class="r"><code># Retrieve species column from iris dataset
-iris$Species</code></pre>
+<div id="retrieving-species-column-from-iris-dataset" class="section level4">
+<h4>Retrieving Species column from iris dataset</h4>
+<pre class="r"><code>iris$Species</code></pre>
 <pre><code>##   [1] setosa     setosa     setosa     setosa     setosa     setosa    
 ##   [7] setosa     setosa     setosa     setosa     setosa     setosa    
 ##  [13] setosa     setosa     setosa     setosa     setosa     setosa    
@@ -426,8 +444,10 @@ iris$Species</code></pre>
 ## [139] virginica  virginica  virginica  virginica  virginica  virginica 
 ## [145] virginica  virginica  virginica  virginica  virginica  virginica 
 ## Levels: setosa versicolor virginica</code></pre>
-<pre class="r"><code># Retrieve Petal.Length column from iris dataset
-iris$Petal.Length</code></pre>
+</div>
+<div id="retrieving-petal.length-column-from-iris-dataset" class="section level4">
+<h4>Retrieving Petal.Length column from iris dataset</h4>
+<pre class="r"><code>iris$Petal.Length</code></pre>
 <pre><code>##   [1] 1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 1.5 1.6 1.4 1.1 1.2 1.5 1.3
 ##  [18] 1.4 1.7 1.5 1.7 1.5 1.0 1.7 1.9 1.6 1.6 1.5 1.4 1.6 1.6 1.5 1.5 1.4
 ##  [35] 1.5 1.2 1.3 1.4 1.3 1.5 1.3 1.3 1.3 1.6 1.9 1.4 1.6 1.4 1.5 1.4 4.7
@@ -438,19 +458,25 @@ iris$Petal.Length</code></pre>
 ## [120] 5.0 5.7 4.9 6.7 4.9 5.7 6.0 4.8 4.9 5.6 5.8 6.1 6.4 5.6 5.1 5.6 6.1
 ## [137] 5.6 5.5 4.8 5.4 5.6 5.1 5.1 5.9 5.7 5.2 5.0 5.2 5.4 5.1</code></pre>
 </div>
+</div>
 <div id="finding-data-type-of-a-column-attribute" class="section level3">
 <h3>5.2.4 Finding data type of a column (attribute)</h3>
-<pre class="r"><code># Find the type of column vector Species in iris
-class(iris$Species)</code></pre>
+<div id="finding-the-type-of-column-vector-species-in-iris" class="section level4">
+<h4>Finding the type of column vector Species in iris</h4>
+<pre class="r"><code>class(iris$Species)</code></pre>
 <pre><code>## [1] &quot;factor&quot;</code></pre>
-<pre class="r"><code># Find the type of column vector Sepal.Length in iris
-class(iris$Sepal.Length)</code></pre>
+</div>
+<div id="finding-the-type-of-column-vector-sepal.length-in-iris" class="section level4">
+<h4>Finding the type of column vector Sepal.Length in iris</h4>
+<pre class="r"><code>class(iris$Sepal.Length)</code></pre>
 <pre><code>## [1] &quot;numeric&quot;</code></pre>
+</div>
 </div>
 <div id="subscripting" class="section level3">
 <h3>5.2.5 Subscripting</h3>
-<pre class="r"><code># Retrive first 50 rows from iris dataset
-iris[1:50,]</code></pre>
+<div id="retrieving-first-50-rows-of-iris-dataset" class="section level4">
+<h4>Retrieving first 50 rows of iris dataset</h4>
+<pre class="r"><code>iris[1:50,]</code></pre>
 <pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 ## 1           5.1         3.5          1.4         0.2  setosa
 ## 2           4.9         3.0          1.4         0.2  setosa
@@ -502,8 +528,10 @@ iris[1:50,]</code></pre>
 ## 48          4.6         3.2          1.4         0.2  setosa
 ## 49          5.3         3.7          1.5         0.2  setosa
 ## 50          5.0         3.3          1.4         0.2  setosa</code></pre>
-<pre class="r"><code># Retrieve the first 2 columns (attributes) of iris
-iris[, 1:2]</code></pre>
+</div>
+<div id="retrieve-the-first-2-columns-attributes-of-iris" class="section level4">
+<h4>Retrieve the first 2 columns (attributes) of iris</h4>
+<pre class="r"><code>iris[, 1:2]</code></pre>
 <pre><code>##     Sepal.Length Sepal.Width
 ## 1            5.1         3.5
 ## 2            4.9         3.0
@@ -655,8 +683,10 @@ iris[, 1:2]</code></pre>
 ## 148          6.5         3.0
 ## 149          6.2         3.4
 ## 150          5.9         3.0</code></pre>
-<pre class="r"><code># Retrieve the columns Sepal.Length and Petal.Length
-iris[, c(&quot;Sepal.Length&quot;, &quot;Petal.Length&quot;)]</code></pre>
+</div>
+<div id="retrieving-the-columns-sepal.length-and-petal.length" class="section level4">
+<h4>Retrieving the columns Sepal.Length and Petal.Length</h4>
+<pre class="r"><code>iris[, c(&quot;Sepal.Length&quot;, &quot;Petal.Length&quot;)]</code></pre>
 <pre><code>##     Sepal.Length Petal.Length
 ## 1            5.1          1.4
 ## 2            4.9          1.4
@@ -808,8 +838,10 @@ iris[, c(&quot;Sepal.Length&quot;, &quot;Petal.Length&quot;)]</code></pre>
 ## 148          6.5          5.2
 ## 149          6.2          5.4
 ## 150          5.9          5.1</code></pre>
-<pre class="r"><code># Retrieve All of the columns excluding the last column Species
-iris[, colnames(iris) !=&quot;Species&quot;]</code></pre>
+</div>
+<div id="retrieving-all-of-the-columns-excluding-the-last-column-species" class="section level4">
+<h4>Retrieving All of the columns excluding the last column Species</h4>
+<pre class="r"><code>iris[, colnames(iris) !=&quot;Species&quot;]</code></pre>
 <pre><code>##     Sepal.Length Sepal.Width Petal.Length Petal.Width
 ## 1            5.1         3.5          1.4         0.2
 ## 2            4.9         3.0          1.4         0.2
@@ -961,8 +993,10 @@ iris[, colnames(iris) !=&quot;Species&quot;]</code></pre>
 ## 148          6.5         3.0          5.2         2.0
 ## 149          6.2         3.4          5.4         2.3
 ## 150          5.9         3.0          5.1         1.8</code></pre>
-<pre class="r"><code># Select rows whose Species equals to 'setosa'
-iris[iris$Species == &quot;setosa&quot;, ]</code></pre>
+</div>
+<div id="viewing-rows-for-species-setosa" class="section level4">
+<h4>Viewing rows for Species ‘setosa’</h4>
+<pre class="r"><code>iris[iris$Species == &quot;setosa&quot;, ]</code></pre>
 <pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 ## 1           5.1         3.5          1.4         0.2  setosa
 ## 2           4.9         3.0          1.4         0.2  setosa
@@ -1015,6 +1049,7 @@ iris[iris$Species == &quot;setosa&quot;, ]</code></pre>
 ## 49          5.3         3.7          1.5         0.2  setosa
 ## 50          5.0         3.3          1.4         0.2  setosa</code></pre>
 </div>
+</div>
 <div id="displaying-column-wise-statistics-data" class="section level3">
 <h3>5.2.6 Displaying column-wise statistics data</h3>
 <pre class="r"><code>summary(iris)</code></pre>
@@ -1049,10 +1084,11 @@ result2 &lt;- df[ df$X &gt; 0, ]
 # result1 will provide a vector of Y-values from df corresponding to X-values greater than 0.
 # result2 will output a data.frame of X-values in df where X &gt; 0, along with corresponding Y-values.</code></pre>
 </div>
-<div id="e4" class="section level2">
-<h2>5.4 E4</h2>
-<pre class="r"><code># Import the built-in mtcars data
-mtcars</code></pre>
+<div id="e4-mtcars" class="section level2">
+<h2>5.4 E4 mtcars</h2>
+<div id="importing-the-built-in-mtcars-dataset" class="section level3">
+<h3>Importing the built-in mtcars dataset</h3>
+<pre class="r"><code>mtcars</code></pre>
 <pre><code>##                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 ## Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 ## Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
@@ -1086,44 +1122,57 @@ mtcars</code></pre>
 ## Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
 ## Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
 ## Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</code></pre>
-<pre class="r"><code># Look at the help file for mtcars to understand the origin of the data
-help(mtcars)
-
-# Print only the first five rows.
-head(mtcars, 5)</code></pre>
+</div>
+<div id="understanding-mtcars-dataset-by-using-help" class="section level3">
+<h3>Understanding mtcars dataset by using help</h3>
+<pre class="r"><code>help(mtcars)</code></pre>
+</div>
+<div id="first-five-rows-of-mtcars-dataset" class="section level3">
+<h3>First five rows of mtcars dataset</h3>
+<pre class="r"><code>head(mtcars, 5)</code></pre>
 <pre><code>##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
 ## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
 ## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
 ## Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
 ## Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
 ## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</code></pre>
-<pre class="r"><code># Print the last five rows.
-tail(mtcars, 5)</code></pre>
+</div>
+<div id="last-five-rows-of-mtcars-dataset" class="section level3">
+<h3>Last five rows of mtcars dataset</h3>
+<pre class="r"><code>tail(mtcars, 5)</code></pre>
 <pre><code>##                 mpg cyl  disp  hp drat    wt qsec vs am gear carb
 ## Lotus Europa   30.4   4  95.1 113 3.77 1.513 16.9  1  1    5    2
 ## Ford Pantera L 15.8   8 351.0 264 4.22 3.170 14.5  0  1    5    4
 ## Ferrari Dino   19.7   6 145.0 175 3.62 2.770 15.5  0  1    5    6
 ## Maserati Bora  15.0   8 301.0 335 3.54 3.570 14.6  0  1    5    8
 ## Volvo 142E     21.4   4 121.0 109 4.11 2.780 18.6  1  1    4    2</code></pre>
-<pre class="r"><code># How many rows and columns does the data have?
-dim(mtcars)</code></pre>
+</div>
+<div id="dimensions-of-mtcars-dataset" class="section level3">
+<h3>Dimensions of mtcars dataset</h3>
+<pre class="r"><code>dim(mtcars)</code></pre>
 <pre><code>## [1] 32 11</code></pre>
-<pre class="r"><code># mtcars has 32 rows and 11 columns
-
-
-# Look at the data in the RStudio data viewer (if you are using RStudio).
-
-
-# Print the mpg column of the data.
-mtcars$mpg</code></pre>
+<pre class="r"><code># mtcars has 32 rows and 11 columns</code></pre>
+</div>
+<div id="viewing-mtcars-dataset" class="section level3">
+<h3>Viewing mtcars dataset</h3>
+<pre class="r"><code>data(mtcars)
+View(mtcars)</code></pre>
+</div>
+<div id="mpg" class="section level3">
+<h3>MPG</h3>
+<pre class="r"><code>mtcars$mpg</code></pre>
 <pre><code>##  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3 15.2
 ## [15] 10.4 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3 26.0 30.4
 ## [29] 15.8 19.7 15.0 21.4</code></pre>
-<pre class="r"><code>#Print the mpg column of the data where the corresponding cyl column is 6.
-mtcars$mpg[mtcars$cyl == 6]</code></pre>
+</div>
+<div id="mpg-of-6-cylinder-vehicles" class="section level3">
+<h3>MPG of 6-cylinder vehicles</h3>
+<pre class="r"><code>mtcars$mpg[mtcars$cyl == 6]</code></pre>
 <pre><code>## [1] 21.0 21.0 21.4 18.1 19.2 17.8 19.7</code></pre>
-<pre class="r"><code># Print all rows of the data where cyl is 6.
-mtcars[mtcars$cyl == 6, ]</code></pre>
+</div>
+<div id="cylinder-vehicles" class="section level3">
+<h3>6-cylinder vehicles</h3>
+<pre class="r"><code>mtcars[mtcars$cyl == 6, ]</code></pre>
 <pre><code>##                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 ## Mazda RX4      21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 ## Mazda RX4 Wag  21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
@@ -1132,8 +1181,10 @@ mtcars[mtcars$cyl == 6, ]</code></pre>
 ## Merc 280       19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
 ## Merc 280C      17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
 ## Ferrari Dino   19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6</code></pre>
-<pre class="r"><code># Print all rows of the data where mpg is greater than 25, but only for the mpg and cyl columns.
-mtcars[mtcars$mpg &gt; 25, c(&quot;mpg&quot;, &quot;cyl&quot;)]</code></pre>
+</div>
+<div id="printing-rows-of-where-mpg-is-greater-than-25-but-only-for-the-mpg-and-cyl-columns." class="section level3">
+<h3>Printing rows of where mpg is greater than 25, but only for the mpg and cyl columns.</h3>
+<pre class="r"><code>mtcars[mtcars$mpg &gt; 25, c(&quot;mpg&quot;, &quot;cyl&quot;)]</code></pre>
 <pre><code>##                 mpg cyl
 ## Fiat 128       32.4   4
 ## Honda Civic    30.4   4
@@ -1141,6 +1192,7 @@ mtcars[mtcars$mpg &gt; 25, c(&quot;mpg&quot;, &quot;cyl&quot;)]</code></pre>
 ## Fiat X1-9      27.3   4
 ## Porsche 914-2  26.0   4
 ## Lotus Europa   30.4   4</code></pre>
+</div>
 </div>
 <div id="e5" class="section level2">
 <h2>5.5 E5</h2>
@@ -1160,11 +1212,13 @@ diamonds</code></pre>
 ##  9 0.22  Fair      E     VS2      65.1    61   337  3.87  3.78  2.49
 ## 10 0.23  Very Good H     VS1      59.4    61   338  4     4.05  2.39
 ## # ... with 53,930 more rows</code></pre>
-<pre class="r"><code># Open the help page for the diamonds data. Understand the origin of the data and the properties in the data.
-help(diamonds)
-
-# View the first five rows
-head(diamonds, 5)</code></pre>
+<div id="viewing-help-for-diamonds-dataset" class="section level3">
+<h3>Viewing help for diamonds dataset</h3>
+<pre class="r"><code>help(diamonds)</code></pre>
+</div>
+<div id="viewing-first-five-rows-of-the-diamonds-dataset" class="section level3">
+<h3>Viewing first five rows of the diamonds dataset</h3>
+<pre class="r"><code>head(diamonds, 5)</code></pre>
 <pre><code>## # A tibble: 5 x 10
 ##   carat cut     color clarity depth table price     x     y     z
 ##   &lt;dbl&gt; &lt;ord&gt;   &lt;ord&gt; &lt;ord&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
@@ -1173,13 +1227,16 @@ head(diamonds, 5)</code></pre>
 ## 3 0.23  Good    E     VS1      56.9    65   327  4.05  4.07  2.31
 ## 4 0.290 Premium I     VS2      62.4    58   334  4.2   4.23  2.63
 ## 5 0.31  Good    J     SI2      63.3    58   335  4.34  4.35  2.75</code></pre>
-<pre class="r"><code># Find the row count and column count
-dim(diamonds)</code></pre>
+</div>
+<div id="finding-dimensions-rows-and-columns-of-the-diamonds-dataset" class="section level3">
+<h3>Finding dimensions (rows and columns) of the diamonds dataset</h3>
+<pre class="r"><code>dim(diamonds)</code></pre>
 <pre><code>## [1] 53940    10</code></pre>
-<pre class="r"><code># There are 53840 rows and 10 columns in diamonds
-
-# Select rows whose cut equals to Very Good. And find the total of rows in the returned subset
-diamonds[diamonds$cut == &quot;Very Good&quot;, ]</code></pre>
+<pre class="r"><code># There are 53840 rows and 10 columns in diamonds</code></pre>
+</div>
+<div id="diamonds-of-cut-very-good" class="section level3">
+<h3>Diamonds of cut “Very Good”</h3>
+<pre class="r"><code>diamonds[diamonds$cut == &quot;Very Good&quot;, ]</code></pre>
 <pre><code>## # A tibble: 12,082 x 10
 ##    carat cut       color clarity depth table price     x     y     z
 ##    &lt;dbl&gt; &lt;ord&gt;     &lt;ord&gt; &lt;ord&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
@@ -1194,18 +1251,20 @@ diamonds[diamonds$cut == &quot;Very Good&quot;, ]</code></pre>
 ##  9  0.31 Very Good J     SI1      58.1    62   353  4.44  4.47  2.59
 ## 10  0.23 Very Good G     VVS2     60.4    58   354  3.97  4.01  2.41
 ## # ... with 12,072 more rows</code></pre>
-<pre class="r"><code># There are 12,082 rows where cut equals Very Good.
-
-# Find how many diamonds whose carat is greater than 3.0
-count(diamonds[diamonds$carat &gt; 3.0, ])</code></pre>
+<pre class="r"><code># There are 12,082 rows where cut equals Very Good.</code></pre>
+</div>
+<div id="diamonds-larger-than-3.0-carat" class="section level3">
+<h3>Diamonds larger than 3.0 carat</h3>
+<pre class="r"><code>count(diamonds[diamonds$carat &gt; 3.0, ])</code></pre>
 <pre><code>## # A tibble: 1 x 1
 ##       n
 ##   &lt;int&gt;
 ## 1    32</code></pre>
-<pre class="r"><code># There are 32 diamonds with carat greater than 3.0
-
-# Return rows where color is D, but only for the color and cut columns
-diamonds[diamonds$color == &quot;D&quot;, c(&quot;color&quot;, &quot;cut&quot;), drop=FALSE]</code></pre>
+<pre class="r"><code># There are 32 diamonds with carat greater than 3.0</code></pre>
+</div>
+<div id="diamonds-of-color-d" class="section level3">
+<h3>Diamonds of color “D”</h3>
+<pre class="r"><code>diamonds[diamonds$color == &quot;D&quot;, c(&quot;color&quot;, &quot;cut&quot;), drop=FALSE]</code></pre>
 <pre><code>## # A tibble: 6,775 x 2
 ##    color cut      
 ##    &lt;ord&gt; &lt;ord&gt;    
@@ -1220,8 +1279,10 @@ diamonds[diamonds$color == &quot;D&quot;, c(&quot;color&quot;, &quot;cut&quot;),
 ##  9 D     Ideal    
 ## 10 D     Very Good
 ## # ... with 6,765 more rows</code></pre>
-<pre class="r"><code># Run the summary command with the diamonds data. Read the average price.
-summary(diamonds)</code></pre>
+</div>
+<div id="diamonds-summary" class="section level3">
+<h3>Diamonds Summary</h3>
+<pre class="r"><code>summary(diamonds)</code></pre>
 <pre><code>##      carat               cut        color        clarity     
 ##  Min.   :0.2000   Fair     : 1610   D: 6775   SI1    :13065  
 ##  1st Qu.:0.4000   Good     : 4906   E: 9797   VS2    :12258  
@@ -1247,6 +1308,7 @@ summary(diamonds)</code></pre>
 ##  Max.   :58.900   Max.   :31.800  
 ## </code></pre>
 <pre class="r"><code># The average diamond price is $3933.</code></pre>
+</div>
 </div>
 </div>
 
