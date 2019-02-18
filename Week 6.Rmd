@@ -1,0 +1,45 @@
+---
+title: "Week 6 Data manipulation with tibble and dplyr"
+author: "Nicholas Bibeau"
+date: "February 18, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+# 8.1 E1 - Use dplyr and pipes. Rewrite the following script.
+
+## mtcars <- data.frame(mtcars)
+```{r}
+mtcars <- mtcars %>% as_tibble
+```
+
+## mtcars[1:5, ]
+```{r}
+mtcars %>% slice(1:5)
+```
+
+## tail(mtcars, 5)
+```{r}
+mtcars %>% slice(28:32)
+```
+
+
+## nrow(mtcars)
+```{r}
+mtcars %>% count()
+```
+
+## mtcars[ , c("mpg")]
+```{r}
+mtcars %>% select(mpg)
+```
+
+## mtcars[mtcars$cyl == "6","mpg"]
+
+## mtcars[mtcars$cyl == "6", ]
+
+## mtcars[mtcars$mpg > "25", c("mpg","cyl")]
