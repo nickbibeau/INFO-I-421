@@ -1,19 +1,22 @@
 ---
-title: "Week 7 Reading data (inclass)"
+title: "Week 7 Data Normalization (inclass)"
 author: "Nicholas Bibeau"
 date: "February 18, 2019"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 library(tidyverse)
 ```
 
-# 10.1 E1
-```{r}
-#Write a code chunk that reads two remote datasets, train.csv and test.csv, located at https://www.iun.edu/~cisjw/ds/files/data/, named train' and 'test, respectively, and input column types.
+# 11.3 Exercise
 
+## Normalize all of the numeric attributes in the dataset train.csv and test.csv located at https://www.iun.edu/~cisjw/ds/files/data/. Store the normalized data with a new name train.norm and test.norm, respectively.
+
+
+### Importing train.csv and test.csv
+```{r}
 train <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/train.csv", na = "NA", col_types = cols(
   Survived = col_character(),
   Pclass = col_character(),
@@ -45,35 +48,35 @@ test <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/test.csv", na = "NA",
 ))
 ```
 
-# 10.2 E2 - View the first five rows of both tibbles
+## Create Normalization Functions
 ```{r}
-# First five rows of train
-head(train, 5)
+#creating normalization function
+normalize <- function(v, range=1){
+    v.norm = (v - min(na.omit(v))) / (max(na.omit(v))-min(na.omit(v))) * range
+    return(v.norm)
+}
 
-# First five rows of test
-head(test, 5)
+normalizeDataset <- function (data){
+  data.norm <- data
+  types <- sapply(data, is.numeric)
+  for (i in 1:length(types)) {
+    if(types[i]==TRUE){
+      data.norm[ ,i] <- normalize(data[ ,i])
+    }
+  }
+  return(data.norm)
+}
 ```
 
-# 10.3 E3
+
+## Data Normalization
 ```{r}
-# Find the average age in the train tibble.
-#train %>% select(Age) %>% summarise_if(is.numeric, mean, na.rm=TRUE)
-train %>% filter(is.na(Age) == FALSE) %>% summarise(mean(Age))
+# Normalizing train dataset
+train.norm <- normalizeDataset(train)
+train.norm
+
+# normalizing test dataset
+test.norm <- normalizeDataset(test)
+test.norm
 ```
 
-# 10.4 E4
-
-```{r}
-# Write code that applies dplyr functions to select only the female passages from the train tibble
-train %>% filter(Sex == "Female") 
-```
-
-# 10.5 E5
-
-```{r}
-# Write code that applies the logical subscripting to select the survived female rows from thetrain tibble. And find the total of survived females.
-
-train %>% filter(train[, 1] == "Yes", train[, 4] == "Female") %>% count
-```
-
- 
