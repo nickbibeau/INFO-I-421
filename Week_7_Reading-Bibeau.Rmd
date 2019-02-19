@@ -1,0 +1,78 @@
+---
+title: "Week 7 Reading data (inclass)"
+author: "Nicholas Bibeau"
+date: "February 18, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# 10.1 E1
+```{r}
+#Write a code chunk that reads two remote datasets, train.csv and test.csv, located at https://www.iun.edu/~cisjw/ds/files/data/, named train' and 'test, respectively, and input column types.
+
+train <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/train.csv", na = "NA", col_types = cols(
+  Survived = col_character(),
+  Pclass = col_character(),
+  Name = col_character(),
+  Sex = col_character(),
+  Age = col_integer(),
+  SibSp = col_integer(),
+  ParentChild = col_integer(),
+  TicketNumber = col_character(),
+  Fare = col_double(),
+  Cabin = col_character(),
+  Port = col_character(),
+  LifeBoat = col_integer()
+))
+
+test <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/test.csv", na = "NA", col_types = cols(
+  Survived = col_character(),
+  Pclass = col_character(),
+  Name = col_character(),
+  Sex = col_character(),
+  Age = col_integer(),
+  SibSp = col_integer(),
+  ParentChild = col_integer(),
+  TicketNumber = col_character(),
+  Fare = col_double(),
+  Cabin = col_character(),
+  Port = col_character(),
+  LifeBoat = col_integer()
+))
+```
+
+# 10.2 E2 - View the first five rows of both tibbles
+```{r}
+# First five rows of train
+head(train, 5)
+
+# First five rows of test
+head(test, 5)
+```
+
+# 10.3 E3
+```{r}
+# Find the average age in the train tibble.
+train %>% select(Age) %>% summarise_if(is.numeric, mean, na.rm=TRUE)
+```
+
+# 10.4 E4
+
+```{r}
+# Write code that applies dplyr functions to select only the female passages from the train tibble
+train %>% filter(Sex == "Female") 
+```
+
+# 10.5 E5
+
+```{r}
+# Write code that applies the logical subscripting to select the survived female rows from thetrain tibble. And find the total of survived females.
+
+train %>% filter(train[, 1] == "Yes", train[, 4] == "Female") %>% count
+```
+
+ 
