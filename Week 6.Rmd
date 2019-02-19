@@ -1,16 +1,19 @@
 ---
 title: "Week 6 Data manipulation with tibble and dplyr"
 author: "Nicholas Bibeau"
-date: "February 18, 2019"
-output: html_document
+date: "February 17, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(dplyr)
+library(tidyverse)
 ```
 
-# 8.1 E1 - Use dplyr and pipes. Rewrite the following script.
+# 8.1 E1 - Use dplyr and pipes. Rewrite the following scripts:
 
 ## mtcars <- data.frame(mtcars)
 ```{r}
@@ -39,7 +42,62 @@ mtcars %>% select(mpg)
 ```
 
 ## mtcars[mtcars$cyl == "6","mpg"]
+```{r}
+mtcars %>% filter(cyl == 6) %>% select(mpg)
+```
 
 ## mtcars[mtcars$cyl == "6", ]
+```{r}
+mtcars %>% filter(cyl == 6)
+```
 
 ## mtcars[mtcars$mpg > "25", c("mpg","cyl")]
+```{r}
+mtcars %>% filter(mpg > 25) %>% select(c("mpg", "cyl"))
+```
+
+# 8.2 E2 - Use dplyr and pipes. Rewrite the following script:
+```{r}
+library(tidyverse)
+diamonds <- data.frame(diamonds)
+diamonds[1:5, ]
+nrow(diamonds)
+nrow(diamonds[diamonds$cut == "Very Good", ]) 
+nrow(diamonds[diamonds$carat > "3.0", ]) 
+diamonds[diamonds$color == "D", c("color","cut")]
+mean(diamonds$price)
+```
+
+```{r}
+library(tidyverse)
+diamonds <- diamonds %>% data.frame
+diamonds %>% slice(1:5)
+diamonds %>% count()
+diamonds %>% filter(cut == "Very Good") %>% count()
+diamonds %>% filter(carat > 3.0) %>% count()
+diamonds %>% filter(color == "D") %>% select(c("color", "cut"))
+diamonds %>% summarize(mean(price))
+
+```
+
+# 8.3 E3
+
+## 1. Write code to group the mtcars data by cyl and find the total of each group.
+```{r}
+mtcars %>% group_by(cyl) %>% summarize(n())
+```
+
+## 2. Write code to group the mtcars data by cyl and find mean mpg and mean disp of each group.
+```{r}
+mtcars %>% group_by(cyl) %>% summarize(mean(mpg), mean(disp))
+```
+
+## 3. Write code to group the diamonds data by cut and find the maximum and minimum price for each group.
+```{r}
+diamonds %>% group_by(cut) %>% summarize(max(price), min(price))
+```
+
+## 4. Write code to group the diamonds data by color and find the maximum, mean, minimum price for each group.
+```{r}
+diamonds %>% group_by(color) %>% summarize(max(price), mean(price), min(price))
+```
