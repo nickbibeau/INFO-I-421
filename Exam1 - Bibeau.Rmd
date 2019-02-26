@@ -12,22 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 
-#creating normalization function
-normalize <- function(v, range=1){
-    v.norm = (v - min(na.omit(v))) / (max(na.omit(v))-min(na.omit(v))) * range
-    return(v.norm)
-}
 
-normalizeDataset <- function (data){
-  data.norm <- data
-  types <- sapply(data, is.double)
-  for (i in 1:length(types)) {
-    if(types[i]==TRUE){
-      data.norm[ ,i] <- normalize(data[ ,i])
-    }
-  }
-  return(data.norm)
-}
 ```
 
 # 1. Import Dataset
@@ -49,14 +34,9 @@ dim(sales)
 
 # 3. Write a single statement to find the data type of each column.
 ```{r}
-#sales %>% summarize(class(c(1:4, ))
-#c(class(sales$cust_id, sales$sales_total, sales$num_of_orders, sales$gender))
-class(sales$cust_id)
-class(sales$sales_total)
-class(sales$num_of_orders)
-class(sales$gender)
-
+sales %>% summarize(class(cust_id), class(sales_total), class(num_of_orders), class(gender))
 ```
+
 
 # 4. According to your understanding of the column values, be sure that the tibble has every column set in the right data type
 ```{r}
@@ -70,7 +50,7 @@ sales <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/yearly_sales.csv", c
 
 # 5. Write a statement which returns a boolean vector, with the ith element being either TRUE or FALSE
 ```{r}
-
+sales %>% summarize(any(is.na(cust_id)), any(is.na(sales_total)), any(is.na(num_of_orders)), any(is.na(gender)))
 ```
 
 # 6. Display the first five rows in sales
@@ -88,19 +68,77 @@ sales %>% filter(gender == "F") %>% count()
 ```
 
 # 8. For both male and female groups, find their average, maximum, and variance on sales_total and num_of_orders, respectively. Give each value a name.
+
+## Male average sales_total
 ```{r}
 m_sales_total_avg <- sales %>% filter(gender == "M") %>% summarize(mean(sales_total))
+m_sales_total_avg
+```
+
+## Male maximum sales_total
+```{r}
 m_sales_total_max <- sales %>% filter(gender == "M") %>% summarize(max(sales_total))
+m_sales_total_max
+```
+
+## Male variance of sales_total
+```{r}
 m_sales_total_var <- sales %>% filter(gender == "M") %>% summarize(var(sales_total))
+m_sales_total_var
+```
+
+## Male average of num_of_orders
+```{r}
 m_num_of_orders_avg <- sales %>% filter(gender == "M") %>% summarize(mean(num_of_orders))
+m_num_of_orders_avg
+```
+
+## Male maximum of num_of_orders
+```{r}
 m_num_of_orders_max <- sales %>% filter(gender == "M") %>% summarize(max(num_of_orders))
+m_num_of_orders_max
+```
+
+## Male variance of num_of_orders
+```{r}
 m_num_of_orders_var <- sales %>% filter(gender == "M") %>% summarize(var(num_of_orders))
+m_num_of_orders_var
+```
+
+## Female average of sales_total
+```{r}
 f_sales_total_avg <- sales %>% filter(gender == "F") %>% summarize(mean(sales_total))
+f_sales_total_avg
+```
+
+## Female maximum of sales_total
+```{r}
 f_sales_total_max <- sales %>% filter(gender == "F") %>% summarize(max(sales_total))
+f_sales_total_max
+```
+
+## Female variance of sales_total
+```{r}
 f_sales_total_var <- sales %>% filter(gender == "F") %>% summarize(var(sales_total))
+f_sales_total_var
+```
+
+## Female average of num_of_orders
+```{r}
 f_num_of_orders_avg <- sales %>% filter(gender == "F") %>% summarize(mean(num_of_orders))
+f_num_of_orders_avg
+```
+
+## Female maximum of num_of_orders
+```{r}
 f_num_of_orders_max <- sales %>% filter(gender == "F") %>% summarize(max(num_of_orders))
+f_num_of_orders_max
+```
+
+## Female variance of num_of_orders
+```{r}
 f_num_of_orders_var <- sales %>% filter(gender == "F") %>% summarize(var(num_of_orders))
+f_num_of_orders_var
 ```
 
 # 9. For each gender group, find the total of rows who have sales_total greater than 3K.
@@ -123,7 +161,24 @@ sales %>% filter(gender == "F", sales_total > 3000, num_of_orders < 10) %>% coun
 
 # 11. Perform normalization to the columns in sales, which you believe should be normalized to the same range between zero and unit one.
 ```{r}
+#creating normalization function
+normalize <- function(v, range=1){
+    v.norm = (v - min(na.omit(v))) / (max(na.omit(v))-min(na.omit(v))) * range
+    return(v.norm)
+}
+
+normalizeDataset <- function (data){
+  data.norm <- data
+  types <- sapply(data, is.double)
+  for (i in 1:length(types)) {
+    if(types[i]==TRUE){
+      data.norm[ ,i] <- normalize(data[ ,i])
+    }
+  }
+  return(data.norm)
+}
 sales.norm <- normalizeDataset(sales)
 
+sales.norm
 ```
 
