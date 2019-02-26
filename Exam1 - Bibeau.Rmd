@@ -1,0 +1,129 @@
+---
+title: "Exam 1"
+author: "Nicholas Bibeau"
+date: "February 25, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+#creating normalization function
+normalize <- function(v, range=1){
+    v.norm = (v - min(na.omit(v))) / (max(na.omit(v))-min(na.omit(v))) * range
+    return(v.norm)
+}
+
+normalizeDataset <- function (data){
+  data.norm <- data
+  types <- sapply(data, is.double)
+  for (i in 1:length(types)) {
+    if(types[i]==TRUE){
+      data.norm[ ,i] <- normalize(data[ ,i])
+    }
+  }
+  return(data.norm)
+}
+```
+
+# 1. Import Dataset
+```{r}
+sales <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/yearly_sales.csv")
+```
+
+# 2. Write code to return the total rows and total columns
+```{r}
+# Number of rows
+nrow(sales)
+
+# Number of columns
+ncol(sales)
+
+# Rows and columns as dimensions
+dim(sales)
+```
+
+# 3. Write a single statement to find the data type of each column.
+```{r}
+#sales %>% summarize(class(c(1:4, ))
+#c(class(sales$cust_id, sales$sales_total, sales$num_of_orders, sales$gender))
+class(sales$cust_id)
+class(sales$sales_total)
+class(sales$num_of_orders)
+class(sales$gender)
+
+```
+
+# 4. According to your understanding of the column values, be sure that the tibble has every column set in the right data type
+```{r}
+sales <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/yearly_sales.csv", col_types = cols(
+  cust_id = col_integer(),
+  sales_total = col_double(),
+  num_of_orders = col_double(),
+  gender = col_character()
+))
+```
+
+# 5. Write a statement which returns a boolean vector, with the ith element being either TRUE or FALSE
+```{r}
+
+```
+
+# 6. Display the first five rows in sales
+```{r}
+head(sales, 5)
+```
+
+# 7. Find the total males and females, respectively.
+```{r}
+# Total males
+sales %>% filter(gender == "M") %>% count()
+
+# Total females
+sales %>% filter(gender == "F") %>% count()
+```
+
+# 8. For both male and female groups, find their average, maximum, and variance on sales_total and num_of_orders, respectively. Give each value a name.
+```{r}
+m_sales_total_avg <- sales %>% filter(gender == "M") %>% summarize(mean(sales_total))
+m_sales_total_max <- sales %>% filter(gender == "M") %>% summarize(max(sales_total))
+m_sales_total_var <- sales %>% filter(gender == "M") %>% summarize(var(sales_total))
+m_num_of_orders_avg <- sales %>% filter(gender == "M") %>% summarize(mean(num_of_orders))
+m_num_of_orders_max <- sales %>% filter(gender == "M") %>% summarize(max(num_of_orders))
+m_num_of_orders_var <- sales %>% filter(gender == "M") %>% summarize(var(num_of_orders))
+f_sales_total_avg <- sales %>% filter(gender == "F") %>% summarize(mean(sales_total))
+f_sales_total_max <- sales %>% filter(gender == "F") %>% summarize(max(sales_total))
+f_sales_total_var <- sales %>% filter(gender == "F") %>% summarize(var(sales_total))
+f_num_of_orders_avg <- sales %>% filter(gender == "F") %>% summarize(mean(num_of_orders))
+f_num_of_orders_max <- sales %>% filter(gender == "F") %>% summarize(max(num_of_orders))
+f_num_of_orders_var <- sales %>% filter(gender == "F") %>% summarize(var(num_of_orders))
+```
+
+# 9. For each gender group, find the total of rows who have sales_total greater than 3K.
+```{r}
+# Males with sales totals greater than 3k
+sales %>% filter(gender == "M", sales_total > 3000) %>% count()
+
+# Females with sales totals greater than 3k
+sales %>% filter(gender == "F", sales_total > 3000) %>% count()
+```
+
+# 10. For each gender group, find the total of rows who have sales_total greater than 3K and num_of_orders less than 10.
+```{r}
+# Males with sales totals greater than 3k and fewer than 10 orders
+sales %>% filter(gender == "M", sales_total > 3000, num_of_orders < 10) %>% count()
+
+# Females with sales totals greater than 3k and fewer than 10 orders
+sales %>% filter(gender == "F", sales_total > 3000, num_of_orders < 10) %>% count()
+```
+
+# 11. Perform normalization to the columns in sales, which you believe should be normalized to the same range between zero and unit one.
+```{r}
+sales.norm <- normalizeDataset(sales)
+
+```
+
