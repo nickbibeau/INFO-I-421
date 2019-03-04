@@ -1,0 +1,120 @@
+---
+title: "Week 8 - Correlation Analysis"
+author: "Nicholas Bibeau"
+date: "February 25, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# 12.4 Exercise
+
+## Importing weather.csv as a tibble
+```{r}
+weather <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/weather.csv")
+```
+
+## Creating normalization function
+```{r}
+normalize <- function(v, range=1){
+    v.norm = (v - min(na.omit(v))) / (max(na.omit(v))-min(na.omit(v))) * range
+    return(v.norm)
+}
+
+normalizeDataset <- function (data){
+  data.norm <- data
+  types <- sapply(data, is.numeric)
+  for (i in 1:length(types)) {
+    if(types[i]==TRUE){
+      data.norm[ ,i] <- normalize(data[ ,i])
+    }
+  }
+  return(data.norm)
+}
+```
+
+
+## Normalizing numeric column data in weather tibble
+```{r}
+weather.norm <- normalizeDataset(weather)
+weather.norm
+```
+
+
+## Creating function to evaluate Pearson correlation
+```{r}
+pairCorr <- function (x,y) {
+  # calculate the Pearson correlation between two columns in X and Y  
+  length <- length(x)
+  mu_x <- mean(x)
+  mu_y <- mean(y)
+  sd_x <- sd(x)
+  sd_y <- sd(y)
+  # calculate the numerator
+  sum <- 0
+  for (i in 1:length) {
+    sum <- sum + (x[i]-mu_x)*(y[i]-mu_y)
+  }
+  corr <- sum/((length-1)*sd_x*sd_y)
+  return(corr)
+}
+```
+
+## Computing Pearson correlation for temperature and humidity
+```{r}
+#The Pearson correlation between temperature and humidity is
+pairCorr(weather.norm$temperature, weather.norm$humidity)
+```
+
+## Results
+```{r}
+# A Pearson correlation of 0.3150818 indicates no correlation between our variables, temperature and humidity.
+```
+
+# 12.6 Exercise
+
+## Importing train.csv as a tibble
+```{r}
+train <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/train.csv")
+```
+
+## Inspecting values for Survived and Sex in the train tibble
+```{r}
+# Viewing disctinct values in Survived column
+train %>% distinct(Survived)
+
+# Viewing distinct values in Sex column
+train %>% distinct(Sex)
+```
+
+## Creating contingency table
+```{r}
+# Creating contingency table for Survived and Sex
+train_table <- table(train$Survived, train$Sex, dnn = c("Survived", "Sex"))
+
+#Viewing contingency table
+train_table
+
+# Viewing chi-square test
+summary(train_table)
+```
+
+## Conclusion
+```{r}
+# The χ2 value for 1 degree of freedom required to reject the null hypothesis
+```
+
+
+
+
+Find whether there is a correlation relationship between Survived and Sex in the Titanic dataset, train.csv at https://www.iun.edu/~cisjw/ds/files/data/.
+
+Write R code to print the contingendy table between the attributes Survived and Sex, perform a Chi-square test between the two attributes.
+
+Make a conclusion on the correlation between Survived and Sex, according to the Chi-square value and p-value.
