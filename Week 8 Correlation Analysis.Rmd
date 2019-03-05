@@ -107,14 +107,5 @@ summary(train_table)
 
 ## Conclusion
 ```{r}
-# The χ2 value for 1 degree of freedom required to reject the null hypothesis
+# The χ2 value of 344.9 for 1 degree of freedom rejects the null hypothesis with a p-value of 5.539 * (e ^ (-77)).  This indicates a high correlation between Survived and Sex.
 ```
-
-
-
-
-Find whether there is a correlation relationship between Survived and Sex in the Titanic dataset, train.csv at https://www.iun.edu/~cisjw/ds/files/data/.
-
-Write R code to print the contingendy table between the attributes Survived and Sex, perform a Chi-square test between the two attributes.
-
-Make a conclusion on the correlation between Survived and Sex, according to the Chi-square value and p-value.
