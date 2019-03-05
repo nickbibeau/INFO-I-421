@@ -1,0 +1,51 @@
+---
+title: "Exercise 12.10"
+author: "Nicholas Bibeau"
+date: "March 4, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(polycor)
+library(corrplot)
+
+```
+
+# Import train.csv
+```{r}
+train <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/train.csv")
+```
+
+# Generating Correlation Matrix
+```{r}
+train.cor <- hetcor(train$Survived, train$Pclass, train$Sex, train$Age, train$Fare, train$ParentChild, train$SibSp)
+train.cor$correlations
+
+#The strongest correlation is between Fare and Pclass.
+```
+
+# Visualizing the correlation matrix in a correlogram
+```{r}
+corrplot(train.cor$correlations, method="shade", type="upper", tl.col="black", tl.srt=45) 
+```
+
+# Producing a rank of the regular attributes in terms of the correlation strength with Survived in descending order
+```{r}
+names <- c("survived", "pclass", "sex", "age", "fare", "parentchild", "sibsp")
+train.cormat <- as_tibble(train.cor$correlations)
+colnames(train.cormat) <- names
+
+train.cormat <- train.cormat %>% 
+  mutate(attribute=names) %>% 
+  select(attribute,survived,pclass,sex,age,fare,parentchild,sibsp) 
+
+rank <- train.cormat %>% 
+  select(attribute, survived) %>% 
+  mutate(squared.correlation=survived^2) %>%
+  arrange(desc(squared.correlation)) 
+
+rank
+```
+
