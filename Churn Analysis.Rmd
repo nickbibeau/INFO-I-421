@@ -1,0 +1,122 @@
+---
+title: "Churn Analysis"
+author: "Nicholas Bibeau"
+date: "March 18, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(polycor)
+library(corrplot)
+```
+
+# Data Collection
+```{r}
+churn <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/churn_customer.csv", col_types = cols(
+  Technology = col_character(),
+  Age = col_double(),
+  CustomerSince = col_character(),
+  #CustomerSince = col_datetime(format='%m, %d, %y'),
+  SupportCallsLastYear = col_double(),
+  AverageBill = col_double(),
+  ChurnIndicator = col_double()
+))
+summary(churn)
+```
+
+# Churn Indicator
+
+```{r}
+#Add discrete labels in a new column
+churn <- churn %>% mutate(churn_label=ifelse(ChurnIndicator>0.5,1,0))
+#histogram: frequency plot of ChurnIndicator colored by churn label
+churn %>%
+  ggplot(aes(x=ChurnIndicator,fill=as.factor(churn_label)))+
+  geom_bar()+
+  scale_y_log10()+
+  labs(y="log10(count)")
+
+```
+
+## Write the dataset to a file
+
+```{r}
+write_csv(churn, file.path("churn_v2.csv"), quote_escape = "double")
+```
+
+## Find distribution of churn and no churn
+```{r}
+churn %>%
+  group_by(churn_label) %>%
+  summarise(n())
+
+```
+
+# Correlation Analysis
+
+## Generating Correlation Matrix
+```{r}
+churn.cor <- hetcor(churn$ChurnIndicator, churn$churn_label, churn$Technology, churn$Age, churn$AverageBill, churn$SupportCallsLastYear)
+churn.cor$correlations
+```
+
+## Visualizing the correlation matrix in a correlogram
+```{r}
+corrplot(churn.cor$correlations, method="shade", type="upper", tl.col="black", tl.srt=45) 
+```
+
+## Producing a rank of the regular attributes in terms of the correlation strength with churnIndicator in descending order
+```{r}
+names <- c("technology", "age", "callsLastYear", "averageBill", "churnIndicator", "churn_label")
+churn.cormat <- as_tibble(churn.cor$correlations)
+colnames(churn.cormat) <- names
+
+churn.cormat <- churn.cormat %>% 
+  mutate(attribute=names) %>% 
+  select(attribute,churnIndicator,callsLastYear,churn_label,averageBill,technology,age) 
+
+rank <- churn.cormat %>% 
+  select(attribute, churnIndicator) %>% 
+  mutate(squared.correlation=churnIndicator^2) %>%
+  arrange(desc(squared.correlation)) 
+
+rank
+```
+
+# Normalizing Data
+
+## Create Normalization Functions
+```{r}
+#creating normalization function
+normalize <- function(v, range=1){
+    v.norm = (v - min(na.omit(v))) / (max(na.omit(v))-min(na.omit(v))) * range
+    return(v.norm)
+}
+
+normalizeDataset <- function (data){
+  data.norm <- data
+  types <- sapply(data, is.numeric)
+  for (i in 1:length(types)) {
+    if(types[i]==TRUE){
+      data.norm[ ,i] <- normalize(data[ ,i])
+    }
+  }
+  return(data.norm)
+}
+```
+
+## Data Normalization
+```{r}
+# Normalizing train dataset
+churn.norm <- normalizeDataset(churn)
+churn.norm
+```
+
+```{r}
+churn %>%
+  group_by(Technology) %>%
+  summarise(n())
+```
+
