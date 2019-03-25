@@ -2,7 +2,10 @@
 title: "Churn Analysis"
 author: "Nicholas Bibeau"
 date: "March 18, 2019"
-output: html_document
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
 ---
 
 ```{r setup, include=FALSE}

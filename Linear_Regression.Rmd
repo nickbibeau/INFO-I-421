@@ -1,0 +1,105 @@
+---
+title: "Predictive Learning with Linear Regression"
+author: "Nicholas Bibeau"
+date: "March 20, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(polycor)
+library(corrplot)
+```
+
+
+# Load Dataset
+```{r}
+#Load the cpu dataset
+library("tidyverse")
+cpu <- as_tibble(read_csv("https://www.iun.edu/~cisjw/ds/files/data/cpu.csv"))
+#change attribute names to lowercase
+colnames(cpu) <- tolower(colnames(cpu))
+summary(cpu)
+
+```
+
+# Ready data for analysis
+
+## Split the set into two sets for the training and testing purposes
+
+```{r}
+set.seed(52)
+rows <- sample(nrow(cpu)) #Shuffle row indices
+rows
+
+cpu <- cpu[rows, ] #Randomly reorder the cpu rows by the vector rows
+cpu
+```
+
+## Subset data
+```{r}
+split <- round(nrow(cpu)*0.66) #138
+
+# Put first 66% into train dataset
+train <- cpu[1:split, ]
+
+# Put remainining 1/3 into test dataset
+test <- cpu[(split+1):nrow(cpu), ]
+```
+
+# Fit model
+```{r}
+model <- lm(performance ~ ., train) 
+
+summary(model)
+```
+
+## Extracting coefficients and r-squared
+```{r}
+#Extract Coefficients
+model$coefficients #Or coef(model)
+
+#Read r-squared
+summary(model)$r.squared
+```
+
+# Plot fitted values vs. true values in the training set
+```{r}
+plot(model$fitted.values, train$performance, xlab="true_performance", ylab="fitted_performance", main="t")
+```
+
+#  Calculate RMSE in the training set
+```{r}
+# Calculating the errors between every true value and its fitted value in the training set and store the errors in a vector error:
+error <- model$fitted.values - train$performance
+
+# Calculating RMSE:
+rmse.train <- sqrt(mean(error^2))
+rmse.train
+```
+
+# Applying the model to the test set
+```{r}
+# We can apply the model to the test set test by the predict function. Store the predictions in a vector called scores:
+scores <- predict(model, test)
+scores
+```
+
+# Calculating Error Metric: RMSE (root mean square error)
+```{r}
+# Calculating the errors between every true value and its fitted value in the training set and store the errors in a vector error:
+error <- scores - test$performance
+# Calculating RMSE:
+rmse.test <- sqrt(mean(error^2))
+rmse.test
+```
+
+# Comparing rmse.train and rmse.test
+```{r}
+# The training set has a lower RMSE because the regression model was created using this data set.
+```
+
