@@ -1,0 +1,142 @@
+---
+title: "Predictive Learning with Linear Regression"
+author: "Nicholas Bibeau"
+date: "March 20, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+# Load Datasets
+```{r}
+#Load the wine quality datasets
+library("tidyverse")
+red <- read_delim(
+  file = "https://www.iun.edu/~cisjw/ds/files/data/winequality-red.csv",
+  delim = ";")
+white <- read_delim(
+  file = "https://www.iun.edu/~cisjw/ds/files/data/winequality-white.csv",
+  delim = ";")
+
+#change attribute names to lowercase
+colnames(red) <- tolower(colnames(red))
+colnames(white) <- tolower(colnames(white))
+
+summary(red)
+summary(white)
+```
+
+# Ready data for analysis
+
+## Split the set into two sets for the training and testing purposes
+
+```{r}
+set.seed(52)
+rows_red <- sample(nrow(red)) #Shuffle row indices
+rows_red
+
+rows_white <-sample(nrow(white))
+rows_white
+
+red <- red[rows_red, ] #Randomly reorder the cpu rows by the vector rows
+red
+
+white <- white[rows_white, ]
+white
+```
+
+## Subset data
+```{r}
+split_red <- round(nrow(red)*0.66)
+split_white <- round(nrow(white)*0.66)
+
+# Put first 66% into train datasets
+train_red <- red[1:split_red, ]
+train_white <- white[1:split_white, ]
+
+# Put remainining 1/3 into test datasets
+test_red <- red[(split_red+1):nrow(red), ]
+test_white <- white[(split_white+1):nrow(white), ]
+```
+
+# Fit models
+```{r}
+model_red <- lm(quality ~ ., train_red) 
+model_white <- lm(quality ~ ., train_white) 
+
+summary(model_red)
+summary(model_white)
+```
+
+## Extracting coefficients and r-squared
+```{r}
+#Extract Coefficients
+model_red$coefficients
+model_white$coefficients
+
+#Read r-squared
+summary(model_red)$r.squared
+summary(model_white)$r.squared
+```
+
+# Plot fitted values vs. true values in the training set
+```{r}
+# Red Wine
+plot(model_red$fitted.values, train_red$quality, xlab="true_quality", ylab="fitted_quality", main="t")
+
+# White Whine
+plot(model_white$fitted.values, train_white$quality, xlab="true_quality", ylab="fitted_quality", main="t")
+```
+
+#  Calculate RMSE in the training sets
+```{r}
+# Calculating the errors between every true value and its fitted value in the training set and store the errors in a vector error:
+red_error <- model_red$fitted.values - train_red$quality
+white_error <- model_white$fitted.values - train_white$quality
+
+# Calculating RMSE:
+rmse.train_red <- sqrt(mean(red_error^2))
+rmse.train_red
+
+rmse.train_white <- sqrt(mean(white_error^2))
+rmse.train_white
+```
+
+# Applying the models to the test sets
+```{r}
+# We can apply the model to the test set test by the predict function. Store the predictions in vectors:
+scores_red <- predict(model_red, test_red)
+scores_red
+
+scores_white <- predict(model_white, test_white)
+scores_white
+```
+
+# Calculating Error Metric: RMSE (root mean square error)
+```{r}
+# Calculating the errors between every true value and its fitted value in the training set and store the errors in a vector error:
+error_red <- scores_red - test_red$quality
+error_white <- scores_white - test_white$quality
+
+# Calculating RMSE for red
+rmse.test_red <- sqrt(mean(error_red^2))
+rmse.test_red
+
+# Calculating RMSE for white
+rmse.test_white <- sqrt(mean(error_white^2))
+rmse.test_white
+```
+
+# Summary
+```{r}
+# Here we have used multiple regression to predict outcomes
+# Y = XB + ϵ
+```
+
