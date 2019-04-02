@@ -1,0 +1,225 @@
+---
+title: "Correlation_LRegression_Test - Bibeau"
+author: "Nicholas Bibeau"
+date: "April 1, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(polycor)
+library(corrplot)
+```
+
+# Question Set 1: TRUE or FALSE
+```{r}
+# 1. TRUE
+# 2. TRUE
+# 3. TRUE, if it is a numeric variable
+# 4. TRUE
+# 5. TRUE
+# 6. TRUE
+# 7. TRUE
+# 8. TRUE
+# 9. TRUE
+# 10. FALSE
+# 11. TRUE
+# 12. TRUE
+# 13. TRUE
+# 14. TRUE
+# 15. TRUE
+
+```
+
+# Question Set 2: Contingency Table
+
+## 1. Write a statement which returns the names of all the distinct categories in cut:
+```{r}
+unique(diamonds$cut)
+```
+
+## 2. Build a contingency table between color and cut:
+```{r}
+diamonds_table <- table(diamonds$color, diamonds$cut, dnn = c("Color", "Cut"))
+diamonds_table
+```
+
+## 3. Find the total occurrences that cut takes on Ideal and color takes on G:
+```{r}
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "G"))
+```
+
+## 4. Observe the contingency table. Find the color category which has the highest probability of being the ideal cut:
+```{r}
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "D")) / count(diamonds %>% filter(color == "D"))
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "E")) / count(diamonds %>% filter(color == "E"))
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "F")) / count(diamonds %>% filter(color == "F"))
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "G")) / count(diamonds %>% filter(color == "G"))
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "H")) / count(diamonds %>% filter(color == "H"))
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "I")) / count(diamonds %>% filter(color == "I"))
+count(diamonds %>% filter(cut == "Ideal") %>% filter(color == "J")) / count(diamonds %>% filter(color == "J"))
+
+# Color G has the highest probability (.04325186) of being the ideal cut
+```
+
+## 5. Call the R function summary on the contingency table. Read the Chi-squared value from the return:
+```{r}
+summary(diamonds_table)
+# Chisq = 310.32
+```
+
+# Question Set 3: Ranking attributes by their correlation strength to the target class
+
+## Producing Rank-Order of Correlation
+
+### 1. Building Correlation Matrix
+```{r}
+diamonds.cor <- hetcor(diamonds$carat, diamonds$cut, diamonds$color, diamonds$clarity, diamonds$depth, diamonds$table, diamonds$price)
+```
+
+### 2. Store the correlation matrix. Update column names
+```{r}
+names <- c("carat", "cut", "color", "clarity", "depth", "table", "price")
+diamonds.corrmat <- as_tibble(diamonds.cor$correlations)
+colnames(diamonds.corrmat) <- names
+
+diamonds.corrmat
+```
+
+### 3. Add attribute names in a new column and reorder columns
+
+```{r}
+diamonds.corrmat <- diamonds.corrmat %>% 
+  mutate(attribute=names) %>% 
+  select(attribute,carat,cut,color,clarity,depth,table,price)
+```
+
+### 4. Print the ranking
+
+```{r}
+rank <- diamonds.corrmat %>% 
+  select(attribute, cut) %>% 
+  mutate(squared.correlation=cut^2) %>%
+  arrange(desc(squared.correlation)) 
+
+rank #Print the rank tibble
+```
+
+## Visualizing the correlation matrix in a correlogram
+
+```{r}
+corrplot(diamonds.cor$correlations, method="shade", type="upper", tl.col="black", tl.srt=45)
+```
+
+
+# Question Set 4: Predictive Learning with Linear Regression
+
+## 1. Prepare the data
+```{r}
+# Importing Dataset
+house <- read_csv("https://www.jaredlander.com/data/housing.csv")
+
+# Renaming columns
+names(house) <- c("Neighborhood", "Class", "Units", "YearBuilt", "SqFt", "Income", "IncomePerSqFt", "Expense",
+                   "ExpensePerSqFt", "NetIncome", "Value", "ValuePerSqFt", "Boro")
+```
+
+## 2. Inspect the Data
+
+### 1. Inspect Row and Column Count
+```{r}
+nrow(house)
+ncol(house)
+
+# Can also use dim(house) to obtain 2626 rows and 13 columns
+```
+
+### 2. Test each column for missing values:
+```{r}
+check_NA <- function(x){
+  return(any(is.na(x)))
+}
+
+house %>% map(check_NA)
+
+# YearBuilt has NA values
+```
+
+### 3. Examine column-wise summary statistics
+```{r}
+summary(house)
+```
+
+### 4. Find the distinct categories of the Boro column:
+
+```{r}
+unique(house$Boro)
+```
+
+## 3. Fit a linear model with holdout testing
+
+### Split the set into two sets for the training and testing purposes
+```{r}
+set.seed(52)
+rows <- sample(nrow(house)) #Shuffle row indices
+rows
+
+house <- house[rows, ] #Randomly reorder the cpu rows by the vector rows
+house
+```
+
+### Subset data
+```{r}
+split <- round(nrow(house)*0.66) 
+
+# Put first 66% into train dataset
+train <- house[1:split, ]
+
+# Put remainining 1/3 into test dataset
+test <- house[(split+1):nrow(house), ]
+```
+
+### Fit model
+```{r}
+model <- lm(ValuePerSqFt ~ Units + SqFt + Boro, train) 
+summary(model)
+```
+
+### Extracting Coeeficients:
+```{r}
+model$coefficients
+```
+
+### Finding R-squared
+```{r}
+summary(model)$r.squared
+```
+
+### Finding RMSE
+
+```{r}
+# Calculating the errors between every true value and its fitted value in the training set and store the errors in a vector error:
+error <- model$fitted.values - train$ValuePerSqFt
+
+# Calculating RMSE:
+rmse.train <- sqrt(mean(error^2))
+rmse.train
+```
+
+## 4. Results
+
+### List the predictors that are present in the linear model:
+```{r}
+#The predictors present in the linear model are Units, SqFt, BoroBrooklyn, BoroManhattan, BoroQueens, and BoroStaten Island.
+```
+
+### Which predictor has the strongest effect on ValuePerSqFt
+```{r}
+# BoroManhattan has the strongest effect on ValuePerSqFt
+```
+
+
