@@ -1,8 +1,11 @@
 ---
-title: "inClass 2019_April_08"
+title: "inClass2_2019-April-08"
 author: "Nicholas Bibeau"
 date: "4/8/2019"
-output: html_document
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
@@ -10,34 +13,49 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
+# Viewing Iris Dataset
 ```{r}
-c1 <- c(1,2,3,4,5)
-c2 <- c(45,39,35,69,58)
-c3 <- c(46000,100000,38000,150000,51000)
-c4 <- c('book','tv','dvd','car_cover',NA)
-dataset <- tibble(c1,c2,c3,c4)
-colnames(dataset) <- c('customer_id','age','income','product')
-summary(dataset)
-
+iris
 ```
 
+# Normalizing Iris Dataset
+
+## Creating Normalization Function
 ```{r}
 normalize <- function(v, range=1){
-v.norm = (v - min(v,na.rm=TRUE)) /
-(max(v,na.rm=TRUE)-min(v,na.rm=TRUE)) * range
-return(v.norm)
-}#user-defined function
-dataset[ ,2] <- normalize(dataset[ ,2])
-dataset[ ,3] <- normalize(dataset[ ,3])
-dataset
+    v.norm = (v - min(na.omit(v))) / (max(na.omit(v))-min(na.omit(v))) * range
+    return(v.norm)
+}
+
+normalizeDataset <- function (data){
+  data.norm <- data
+  types <- sapply(data, is.numeric)
+  for (i in 1:length(types)) {
+    if(types[i]==TRUE){
+      data.norm[ ,i] <- normalize(data[ ,i])
+    }
+  }
+  return(data.norm)
+}
+```
+
+## Applying Normalization to Dataset
+```{r}
+
+# Normalizing train dataset
+iris.norm <- normalizeDataset(iris)
+iris.norm
 
 ```
+
 
 ```{r}
 eucli_distance <- function(x,y){
-d <- sqrt(sum((x-y)^2))
-return(d)
+  d <- sqrt(sum((x-y)^2))
+  return(d)
 }
+
+
 target <- dataset %>%
 filter(customer_id==5) %>%
 select(age,income)
