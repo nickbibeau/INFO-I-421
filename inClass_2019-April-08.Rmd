@@ -1,0 +1,23 @@
+---
+title: "inClass 2019_April_08"
+author: "Nicholas Bibeau"
+date: "4/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+c1 <- c(1,2,3,4,5)
+c2 <- c(45,39,35,69,58)
+c3 <- c(46000,100000,38000,150000,51000)
+c4 <- c('book','tv','dvd','car_cover',NA)
+dataset <- tibble(c1,c2,c3,c4)
+colnames(dataset) <- c('customer_id','age','income','product')
+summary(dataset)
+
+```
+
