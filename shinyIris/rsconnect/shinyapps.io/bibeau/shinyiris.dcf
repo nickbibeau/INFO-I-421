@@ -1,0 +1,10 @@
+name: shinyiris
+title:
+username:
+account: bibeau
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 848972
+bundleId: 1996407
+url: https://bibeau.shinyapps.io/shinyiris/
+when: 1554772414.30738

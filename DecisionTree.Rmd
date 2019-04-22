@@ -1,0 +1,113 @@
+---
+title: "Decision Tree"
+author: "Nicholas Bibeau"
+date: "4/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("rpart")
+library("rpart.plot")
+library("party")
+library("tidyverse")
+
+# User-defined function to 
+# 1. calculate Shannon entropy for a given vector 
+# 2. visualize the distribution in a histogram
+
+entropy.gini <- function(input, type=1, discrete=1){
+  # a function to calculate Shannon entropy for a given vector
+  # type: 1- categories in integers, continuous values
+  # type: 2- class counts
+  # when type=1, discrete: 1-discrete labels, 0-continuous labels
+  
+  if (type==1){
+    if (discrete == 0){
+      breaks <- c(floor(min(input)):ceiling(max(input)))
+    } else {
+      breaks <- c(min(input):(max(input)+1))
+    }
+    freq <- hist(input,include.lowest=TRUE,right=FALSE, breaks=breaks,col='lightblue')
+    counts <- freq$counts
+    total <- sum(counts)
+    
+  }
+  else{
+    breaks <- length(input)
+    total <- sum(input)
+    counts <- input
+    hist(input)
+  }
+  
+  entropy <- 0
+  for(x in counts){
+    if(x!=0)
+      temp <- x/total*log2(x/total)
+    else
+      temp <- 0
+
+    entropy <- entropy - temp
+  }
+  
+  gini <- 1-sum((counts/total)**2)
+  
+  mylist <- list("breaks"=breaks,"entropy"=entropy,"gini"=gini)
+  return(mylist)
+}
+```
+
+
+
+## Import Dataset
+```{r}
+lenses <- as.tibble(read.table("http://archive.ics.uci.edu/ml/machine-learning-databases/lenses/lenses.data", header = FALSE, col.names=c("patient", "age", "prescription", "astigmatic", "tear_rate", "lens")))
+# Drop unneccessary column "patient"
+lenses <- lenses[,2:6]
+```
+
+
+## Calculating Entropy of Set
+```{r}
+# Group by lens type
+counts <- (lenses %>% 
+  select(lens) %>%
+  group_by(lens) %>%
+  summarise(count=n())
+  )$count
+  
+entropy_set <- entropy.gini(counts, type=2)$entropy
+
+# The entropy for the entire set is: 
+entropy_set
+```
+
+##
+```{r}
+#======Information Gain
+#1.If split on b,information(before)-information(after)
+#information(before):entropy(c(3,2))
+#information(after): sum up weighted entropy over subsets
+info.before <- entropy_set
+
+subsets.age <- table(lenses$age,lenses$lens)
+subsets.age
+subsets.age["1",]
+subsets.age["2",]
+subsets.age["3",]
+```
+
+```{r}
+
+
+set.seed(20)
+fit <- rpart(lens~age,,
+      method="class", data=lenses,
+      control=rpart.control(minsplit = 1,cp=1),
+      parms=list(split='information'))
+summary(fit)
+rpart.plot(fit,type=4,extra=2,roundint=FALSE)
+
+```
+
+

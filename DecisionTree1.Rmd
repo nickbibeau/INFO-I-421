@@ -1,0 +1,68 @@
+---
+title: "Decision Tree"
+author: "Nicholas Bibeau"
+date: "4/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# User-defined function to 
+# 1. calculate Shannon entropy for a given vector 
+# 2. visualize the distribution in a histogram
+
+entropy.gini <- function(input, type=1, discrete=1){
+  # a function to calculate Shannon entropy for a given vector
+  # type: 1- categories in integers, continuous values
+  # type: 2- class counts
+  # when type=1, discrete: 1-discrete labels, 0-continuous labels
+  
+  if (type==1){
+    if (discrete == 0){
+      breaks <- c(floor(min(input)):ceiling(max(input)))
+    } else {
+      breaks <- c(min(input):(max(input)+1))
+    }
+    freq <- hist(input,include.lowest=TRUE,right=FALSE, breaks=breaks,col='lightblue')
+    counts <- freq$counts
+    total <- sum(counts)
+    
+  }
+  else{
+    breaks <- length(input)
+    total <- sum(input)
+    counts <- input
+    hist(input)
+  }
+  
+  entropy <- 0
+  for(x in counts){
+    if(x!=0)
+      temp <- x/total*log2(x/total)
+    else
+      temp <- 0
+
+    entropy <- entropy - temp
+  }
+  
+  gini <- 1-sum((counts/total)**2)
+  
+  mylist <- list("breaks"=breaks,"entropy"=entropy,"gini"=gini)
+  return(mylist)
+}
+```
+
+
+## Import Dataset
+```{r}
+lenses <- read.table("http://archive.ics.uci.edu/ml/machine-learning-databases/lenses/lenses.data", header = FALSE)
+```
+
+```{r}
+ labels <- c(3,2,3,1,3,2,3,1,3,2,3,1,3,2,3,3,3,3,3,1,3,2,3,3)
+re <- entropy.gini(labels, type=1, discrete=1)
+re$entropy
+re$gini
+```
+
