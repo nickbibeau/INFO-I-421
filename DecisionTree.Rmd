@@ -239,27 +239,74 @@ if (max(gains) == gains[1]) {print("Age")
 
 ```
 
-## Finding gini index
+# 1.2.4: The gini index
 
-### Finding gini for Age
+## Finding gini for Age
 ```{r}
-g1 <- entropy.gini(subsets.b["apple",],type=2)$gini
-g2 <- entropy.gini(subsets.b["berry",],type=2)$gini
-g3 <- entropy.gini(subsets.b["pear",],type=2)$gini
+g_age1 <- entropy.gini(subsets.age["1",],type=2)$gini
+g_age2 <- entropy.gini(subsets.age["2",],type=2)$gini
+g_age3 <- entropy.gini(subsets.age["3",],type=2)$gini
 #weighted sum
-total <- nrow(samples)
-w1 <- sum(subsets.b["apple",])/total
-w2 <- sum(subsets.b["berry",])/total
-w3 <- sum(subsets.b["pear",])/total
-gini.b <- w1*g1 + w2*g2 + w3*g3 #0.48
+w_age1 <- sum(subsets.age["1",])/total
+w_age2 <- sum(subsets.age["2",])/total
+w_age3 <- sum(subsets.age["3",])/total
+gini.age <- w_age1*g_age1 + w_age2*g_age2 + w_age3*g_age3 
 
-#a
-g1 <- entropy.gini(set.left$tag, type=1, discrete=1)$gini
-g2 <- entropy.gini(set.right$tag, type=1, discrete=1)$gini
-# weighted sum
-total <- nrow(samples)
-w1 <- nrow(set.left)/total
-w2 <- nrow(set.right)/total
-gini.a <- w1*g1 + w2*g2
+```
+
+## Finding gini for Spectacle Prescription
+```{r}
+g_script1 <- entropy.gini(subsets.script["1",],type=2)$gini
+g_script2 <- entropy.gini(subsets.script["2",],type=2)$gini
+#weighted sum
+w_script1 <- sum(subsets.script["1",])/total
+w_script2 <- sum(subsets.script["2",])/total
+gini.script <- w_script1*g_script1 + w_script2*g_script2
+```
+
+## Finding gini for Astigmatism
+```{r}
+g_astigmatic1 <- entropy.gini(subsets.astigmatic["1",],type=2)$gini
+g_astigmatic2 <- entropy.gini(subsets.astigmatic["2",],type=2)$gini
+#weighted sum
+w_astigmatic1 <- sum(subsets.astigmatic["1",])/total
+w_astigmatic2 <- sum(subsets.astigmatic["2",])/total
+gini.astigmatic <- w_astigmatic1*g_astigmatic1 + w_astigmatic2*g_astigmatic2
+```
+
+## Finding gini for Tear Production Rate
+```{r}
+g_tear_rate1 <- entropy.gini(subsets.tear_rate["1",],type=2)$gini
+g_tear_rate2 <- entropy.gini(subsets.tear_rate["2",],type=2)$gini
+#weighted sum
+w_tear_rate1 <- sum(subsets.tear_rate["1",])/total
+w_tear_rate2 <- sum(subsets.tear_rate["2",])/total
+gini.tear_rate <- w_tear_rate1*g_tear_rate1 + w_tear_rate2*g_tear_rate2
+```
+
+## Scripting Conclusion
+```{r}
+ginis <- c(gini.age, gini.astigmatic, gini.script, gini.tear_rate)
+min(ginis)
+# The root should be:
+if (min(ginis) == ginis[1]) {print("Age")
+  } else if (min(ginis) ==ginis[2]) {print("Astigmatism")
+  } else if (min(ginis) ==ginis[3]) {print("Prescription")
+  } else if (min(ginis) ==ginis[4]) {print("Tear Production Rate")
+}
+
+```
+
+# 1.2.5: Tree Models via rpart
+
+
+```{r}
+set.seed(20)
+fit <- rpart(lens~age+prescription+astigmatic+tear_rate,
+      method="class", data=lenses,
+      control=rpart.control(minsplit = 1,cp=0),
+      parms=list(split='information'))
+summary(fit)
+rpart.plot(fit,type=4,extra=2,roundint=FALSE)
 ```
 

@@ -1,0 +1,34 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+# Compute Entropy for Set
+entropy_set <- entropy.gini(counts, type=2)$entropy
+# Declaring empty vectors
+classes <- vector()
+entropy <- vector()
+w <- vector()
+info <- vector()
+gain <- vector() 
+lens_table <- as.table()
+for (i in 1: (ncol(lenses) - 1)) {
+  classes[i] <- colnames(lenses[ , i])
+  values = distinct(lenses[,i])
+  for (j in 1: length(values)) {
+    entropy = vector()
+    entropy[j] <- entropy.gini(lenses[j,], type=2)$entropy
+
+  }  
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
