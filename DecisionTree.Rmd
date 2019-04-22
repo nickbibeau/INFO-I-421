@@ -2,7 +2,10 @@
 title: "Decision Tree"
 author: "Nicholas Bibeau"
 date: "4/15/2019"
-output: html_document
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
@@ -11,6 +14,7 @@ library("rpart")
 library("rpart.plot")
 library("party")
 library("tidyverse")
+library("foreach")
 
 # User-defined function to 
 # 1. calculate Shannon entropy for a given vector 
@@ -57,7 +61,7 @@ entropy.gini <- function(input, type=1, discrete=1){
 }
 ```
 
-
+# 1.2.2: Lenses Dataset
 
 ## Import Dataset
 ```{r}
@@ -68,46 +72,194 @@ lenses <- lenses[,2:6]
 
 
 ## Calculating Entropy of Set
+
+### 1: Group by lens type and count classes
 ```{r}
-# Group by lens type
 counts <- (lenses %>% 
   select(lens) %>%
   group_by(lens) %>%
   summarise(count=n())
   )$count
-  
-entropy_set <- entropy.gini(counts, type=2)$entropy
+```
 
+### 2: Computing Entropy of Whole Dataset
+```{r}
+entropy_set <- entropy.gini(counts, type=2)$entropy
 # The entropy for the entire set is: 
 entropy_set
 ```
 
-##
-```{r}
-#======Information Gain
-#1.If split on b,information(before)-information(after)
-#information(before):entropy(c(3,2))
-#information(after): sum up weighted entropy over subsets
-info.before <- entropy_set
+## 3: Calculating Gain Based on Age
 
+### 3.1: Looking at distribution in terms of three subsets by age
+```{r}
+info.before <- entropy_set
 subsets.age <- table(lenses$age,lenses$lens)
 subsets.age
+
 subsets.age["1",]
 subsets.age["2",]
 subsets.age["3",]
+
+
 ```
 
+### 3.2: Computing Entropy of Each Subset
 ```{r}
+entropy.young <- entropy.gini(subsets.age["1",], type=2)$entropy
+entropy.prepresbyopic <- entropy.gini(subsets.age["2",], type=2)$entropy
+entropy.presbyopic <- entropy.gini(subsets.age["3",], type=2)$entropy
+```
+
+### 3.3: Computing Weighted Entropy
+```{r}
+total <- nrow(lenses)
+w1 <- sum(subsets.age["1",])/total
+w2 <- sum(subsets.age["2",])/total
+w3 <- sum(subsets.age["3",])/total
+info.age <- w1*entropy.young + w2*entropy.prepresbyopic + w3*entropy.presbyopic
+```
 
 
-set.seed(20)
-fit <- rpart(lens~age,,
-      method="class", data=lenses,
-      control=rpart.control(minsplit = 1,cp=1),
-      parms=list(split='information'))
-summary(fit)
-rpart.plot(fit,type=4,extra=2,roundint=FALSE)
+### 3.4 Computing Information Gain of Age
+```{r}
+gain.age <- info.before - info.age
+```
+
+
+## 4: Calculating Gain Based on Spectacle Prescription
+
+### 4.1: Looking at distribution in terms of three subsets by prescription
+```{r}
+subsets.script <- table(lenses$prescription,lenses$lens)
+subsets.script
+
+subsets.script["1",]
+subsets.script["2",]
+```
+
+### 4.2: Computing Entropy of Each Subset
+```{r}
+entropy.myope <- entropy.gini(subsets.script["1",], type=2)$entropy
+entropy.hypermetrope <- entropy.gini(subsets.script["2",], type=2)$entropy
+```
+
+### 4.3: Computing Weighted Entropy
+```{r}
+w_script1 <- sum(subsets.script["1",])/total
+w_script2 <- sum(subsets.script["2",])/total
+info.script <- w_script1*entropy.myope + w_script2*entropy.hypermetrope
+```
+
+
+### 4.4 Computing Information Gain of Prescription
+```{r}
+gain.script <- info.before - info.script
+```
+
+
+## 5: Calculating Gain Based on Astigmatism
+
+### 5.1: Looking at distribution in terms of three subsets by astigmatism
+```{r}
+subsets.astigmatic <- table(lenses$astigmatic,lenses$lens)
+subsets.astigmatic
+
+subsets.astigmatic["1",]
+subsets.astigmatic["2",]
+```
+
+### 5.2: Computing Entropy of Each Subset
+```{r}
+entropy.no <- entropy.gini(subsets.astigmatic["1",], type=2)$entropy
+entropy.yes <- entropy.gini(subsets.astigmatic["2",], type=2)$entropy
+```
+
+### 5.3: Computing Weighted Entropy
+```{r}
+w_astigmatic1 <- sum(subsets.astigmatic["1",])/total
+w_astigmatic2 <- sum(subsets.astigmatic["2",])/total
+info.astigmatic <- w_astigmatic1*entropy.no + w_astigmatic2*entropy.yes
+```
+
+
+### 5.4 Computing Information Gain of Prescription
+```{r}
+gain.astigmatic <- info.before - info.astigmatic
+```
+
+
+## 6: Calculating Gain Based on Tear Production Rate
+
+### 6.1: Looking at distribution in terms of three subsets by Tear Production Rate
+```{r}
+subsets.tear_rate <- table(lenses$tear_rate,lenses$lens)
+subsets.tear_rate
+
+subsets.tear_rate["1",]
+subsets.tear_rate["2",]
+```
+
+### 6.2: Computing Entropy of Each Subset
+```{r}
+entropy.reduced <- entropy.gini(subsets.tear_rate["1",], type=2)$entropy
+entropy.normal <- entropy.gini(subsets.tear_rate["2",], type=2)$entropy
+```
+
+### 6.3: Computing Weighted Entropy
+```{r}
+w_tear_rate1 <- sum(subsets.tear_rate["1",])/total
+w_tear_rate2 <- sum(subsets.tear_rate["2",])/total
+info.tear_rate <- w_tear_rate1*entropy.reduced + w_tear_rate2*entropy.normal
+```
+
+
+### 6.4 Computing Information Gain of Prescription
+```{r}
+gain.tear_rate <- info.before - info.tear_rate
+```
+
+
+## 7. Result
+```{r}
+# Tear Production rate yields the greatest information gain, and should be selected as the root node.
+```
+
+
+# 1.2.3 Scripting Previous Calcuations
+```{r}
+gains <- c(gain.age, gain.astigmatic, gain.script, gain.tear_rate)
+max(gains)
+# The largest gains are achieved through:
+if (max(gains) == gains[1]) {print("Age")
+  } else if (max(gains) ==gains[2]) {print("Astigmatism")
+  } else if (max(gains) ==gains[3]) {print("Prescription")
+  } else if (max(gains) ==gains[4]) {print("Tear Production Rate")
+}
 
 ```
 
+## Finding gini index
+
+### Finding gini for Age
+```{r}
+g1 <- entropy.gini(subsets.b["apple",],type=2)$gini
+g2 <- entropy.gini(subsets.b["berry",],type=2)$gini
+g3 <- entropy.gini(subsets.b["pear",],type=2)$gini
+#weighted sum
+total <- nrow(samples)
+w1 <- sum(subsets.b["apple",])/total
+w2 <- sum(subsets.b["berry",])/total
+w3 <- sum(subsets.b["pear",])/total
+gini.b <- w1*g1 + w2*g2 + w3*g3 #0.48
+
+#a
+g1 <- entropy.gini(set.left$tag, type=1, discrete=1)$gini
+g2 <- entropy.gini(set.right$tag, type=1, discrete=1)$gini
+# weighted sum
+total <- nrow(samples)
+w1 <- nrow(set.left)/total
+w2 <- nrow(set.right)/total
+gini.a <- w1*g1 + w2*g2
+```
 
