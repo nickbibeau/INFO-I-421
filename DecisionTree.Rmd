@@ -5,6 +5,7 @@ date: "4/15/2019"
 output: 
   html_document:
     toc: TRUE
+    toc_float: TRUE
     theme: united
 ---
 
@@ -65,7 +66,7 @@ entropy.gini <- function(input, type=1, discrete=1){
 
 ## Import Dataset
 ```{r}
-lenses <- as.tibble(read.table("http://archive.ics.uci.edu/ml/machine-learning-databases/lenses/lenses.data", header = FALSE, col.names=c("patient", "age", "prescription", "astigmatic", "tear_rate", "lens")))
+lenses <- as_tibble(read.table("http://archive.ics.uci.edu/ml/machine-learning-databases/lenses/lenses.data", header = FALSE, col.names=c("patient", "age", "prescription", "astigmatic", "tear_rate", "lens")))
 # Drop unneccessary column "patient"
 lenses <- lenses[,2:6]
 ```
