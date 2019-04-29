@@ -533,3 +533,33 @@ names(gains) <- gain_names
 names(gains)[which.max(gains)]
 ```
 
+## 1.6.2 Fitting a single tree model using rpart
+
+### Decision tree using default settings
+```{r decision_tree_default}
+set.seed(20)
+fit <- rpart(deg_malig~age+breast+breast_quad+inv_nodes+irradiat+menopause+node_caps+tumor_size,
+      method="class", data=breast_cancer,
+      control=rpart.control(),
+      parms=list(split='information'))
+summary(fit)
+rpart.plot(fit,type=4,extra=2,roundint=FALSE)
+```
+
+### Decision tree using custom settings
+```{r decision_tree_custom}
+set.seed(20)
+fit <- rpart(deg_malig~age+breast+breast_quad+inv_nodes+irradiat+menopause+node_caps+tumor_size,
+      method="class", data=breast_cancer,
+      control=rpart.control(minsplit=4,cp=0.01),
+      parms=list(split='information'))
+summary(fit)
+rpart.plot(fit,type=4,extra=2,roundint=FALSE)
+```
+
+### Comparison of decision trees
+```{r}
+# The decision tree created with default settings has a height of 7, while the decision tree created with custom settings has a height of 8. The default tree will yield a faster speed of prediction, and will not be as likely to be overfitting of our sample data. However, further testing will likely generate a tree that is less subject to overfitting with a faster speed of prediction.
+```
+
+## 1.6.3 Building a bossted tree with holdout validation
