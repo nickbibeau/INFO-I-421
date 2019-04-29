@@ -1,0 +1,117 @@
+---
+title: "INFO-I 421 Final - Building Decision Tree Models for the Breast Cancer Data"
+author: "Nicholas Bibeau"
+date: "April 29, 2019"
+output: 
+  html_document:
+    toc: TRUE
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(DiagrammeR)
+library(useful)
+library(xgboost)
+library(vip)
+library(randomForest)
+```
+
+# 1.1 Importing Data
+```{r data_import}
+breast_cancer <- as_tibble(read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer/breast-cancer.data", header = FALSE, na = "?", sep = ",", col.names=c("class", "age", "menopause", "tumor_size", "inv_nodes", "node_caps", "deg_malig", "breast", "breast-quad", "irradiat")))
+```
+
+# 1.2 Finding the age category which has the highest risk of recurrence
+
+## Viewing distinct factors for age
+```{r unique_age}
+unique(breast_cancer$age)
+```
+
+## Building contingency table for age and recurrence
+```{r age_recur_table}
+breast_cancer_table <- table(breast_cancer$age, breast_cancer$class, dnn = c("Age", "Recurrence"))
+breast_cancer_table
+```
+
+## Calculating probability of recurrence by age group
+
+```{r prob_recur_by_age}
+probAge1 <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(age == "20-29")) /
+  count(breast_cancer %>% filter(age == "20-29"))
+probAge2 <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(age == "30-39")) /
+  count(breast_cancer %>% filter(age == "30-39"))
+probAge3 <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(age == "40-49")) /
+  count(breast_cancer %>% filter(age == "40-49"))
+probAge4 <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(age == "50-59")) /
+  count(breast_cancer %>% filter(age == "50-59"))
+probAge5 <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(age == "60-69")) /
+  count(breast_cancer %>% filter(age == "60-69"))
+probAge6 <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(age == "70-79")) /
+  count(breast_cancer %>% filter(age == "70-79"))
+
+# Creating vector of recurrence probability by age group
+recur_probs <- c(probAge1, probAge2, probAge3, probAge4, probAge5, probAge6)
+
+# Creating vector of distinct age groups
+ages <- c ("20-29", "30-39", "40-49", "50-59", "60-69", "70-79")
+
+# Creating named vector of recurrence probability by age group
+names(recur_probs) <- ages
+
+```
+
+## Determining age category with the highest risk of recurrence
+```{r max_risk_age} 
+# The age group with the highest risk of recurrence is: 
+names(recur_probs)[which.max(recur_probs)]
+```
+
+# 1.3 Finding breast with the higher risk of recurrence
+
+## Viewing distinct factors for breast
+```{r unique_breast}
+unique(breast_cancer$breast)
+```
+
+## Building contingency table for age and recurrence
+```{r breast_recur_table}
+breast_cancer_table <- table(breast_cancer$breast, breast_cancer$class, dnn = c("Breast", "Recurrence"))
+breast_cancer_table
+```
+
+## Calculating probability of recurrence by breast
+
+```{r prob_recur_by_breast}
+probLeft <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(breast == "left")) /
+  count(breast_cancer %>% filter(breast == "left"))
+probRight <- count(breast_cancer %>% filter(class == "recurrence-events") %>% filter(breast == "right")) /
+  count(breast_cancer %>% filter(breast == "right"))
+
+# Creating vector of recurrence probability by breast
+recur_probs_breasts <- c(probLeft, probRight)
+
+# Creating vector of distinct breasts
+breasts <- c ("left", "right")
+
+# Creating named vector of recurrence probability by age group
+names(recur_probs_breasts) <- breasts
+
+```
+
+## Determining breast with the higher risk of recurrence
+```{r max_risk_breast} 
+# The age group with the highest risk of recurrence is: 
+names(recur_probs_breasts)[which.max(recur_probs_breasts)]
+```
+
+# 1.4 Drop missing values
+```{r drop_missing}
+breast_cancer <- breast_cancer %>% drop_na()
+```
+
+# 1.5 Rank attributes and plot correlation matrix
