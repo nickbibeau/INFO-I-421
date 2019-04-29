@@ -5,6 +5,7 @@ date: "April 29, 2019"
 output: 
   html_document:
     toc: TRUE
+    toc_float: TRUE
     theme: united
 ---
 
@@ -563,3 +564,83 @@ rpart.plot(fit,type=4,extra=2,roundint=FALSE)
 ```
 
 ## 1.6.3 Building a bossted tree with holdout validation
+
+### Cleaning data for use in boosted tree generation
+```{r preboost_cleaning}
+# Since the response must be 0 and 1, we mutate the class attribute:
+breast_cancer <- breast_cancer %>% mutate(recur_label=ifelse(class=="recurrence-events", 1, 0))
+```
+
+### Splitting data into two sets for training and testing (holdout validation)
+```{r splitting_data}
+set.seed(52)
+# Shuffling row indices
+rows <- sample(nrow(breast_cancer))
+
+# Randomly reordering rows of dataset using rows vector.
+breast_cancer <- breast_cancer[rows,]
+
+split <- round(nrow(breast_cancer)*0.66)
+train <- breast_cancer[1:split, ]
+test <- breast_cancer[split+1:nrow(breast_cancer), ]
+```
+
+### Creating boosted tree
+```{r boosted_tree}
+trainFormula <- recur_label~deg_malig+age+breast+breast_quad+inv_nodes+irradiat+menopause+node_caps+tumor_size
+trainX <- build.x(trainFormula,train,contrasts=FALSE)
+trainY <- build.y(trainFormula,train)
+trainBoost <- xgboost::xgboost(
+  data=trainX,
+  label=trainY,
+  max.depth=3,
+  eta=0.3,
+  #nthread=4,
+  nrounds=10,
+  objective="binary:logistic")
+xgb.plot.multi.trees(
+  trainBoost,
+  feature.names=colnames(trainX)
+)
+```
+
+### Single tree plots
+```{r single_tree_plots}
+xgb.plot.tree(model=trainBoost, trees=2:3, render=TRUE)
+```
+
+## 1.6.4 Ranking variables in terms of their importance to the boosted tree
+
+### Using xgb
+```{r variable_importance_using_xgb}
+importance_matrix <- xgb.importance(
+  model = trainBoost,
+  feature_names =colnames(trainX)
+  )
+print(importance_matrix)
+xgb.plot.importance(importance_matrix = importance_matrix)
+```
+
+### Using vip
+```{r variable_importance_using_vip}
+vip::vip(trainBoost,num_features=18)
+```
+
+## 1.6.5 Constructing random forest model
+```{r}
+trainY <- build.y(trainFormula,train)
+boostedForest <- xgboost(
+  data=trainX,
+  label=trainY,
+  max_depth=4,
+  num_parallel_tree=1000,
+  subsample=0.5,
+  colsample_bytree=0.5,
+  nrounds=3,
+  objective="binary:logistic"
+)
+xgb.plot.multi.trees(
+  boostedForest,
+  feature.names=colnames(trainX)
+)
+```
