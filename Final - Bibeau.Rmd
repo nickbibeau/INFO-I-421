@@ -11,6 +11,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(polycor)
+library(corrplot)
 library(rpart)
 library(rpart.plot)
 library(DiagrammeR)
@@ -22,7 +24,7 @@ library(randomForest)
 
 # 1.1 Importing Data
 ```{r data_import}
-breast_cancer <- as_tibble(read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer/breast-cancer.data", header = FALSE, na = "?", sep = ",", col.names=c("class", "age", "menopause", "tumor_size", "inv_nodes", "node_caps", "deg_malig", "breast", "breast-quad", "irradiat")))
+breast_cancer <- as_tibble(read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer/breast-cancer.data", header = FALSE, na = "?", sep = ",", col.names=c("class", "age", "menopause", "tumor_size", "inv_nodes", "node_caps", "deg_malig", "breast", "breast_quad", "irradiat")))
 ```
 
 # 1.2 Finding the age category which has the highest risk of recurrence
@@ -115,3 +117,45 @@ breast_cancer <- breast_cancer %>% drop_na()
 ```
 
 # 1.5 Rank attributes and plot correlation matrix
+
+## Building correlation matrix
+```{r correlation_matrix}
+# All vectors in breast_cancer dataset are numeric or factors, so no mutations are necessary.
+breast_cancer.cor <- hetcor(breast_cancer$class, breast_cancer$age, breast_cancer$menopause, breast_cancer$tumor_size, breast_cancer$inv_nodes, breast_cancer$node_caps, breast_cancer$deg_malig, breast_cancer$breast, breast_cancer$breast_quad, breast_cancer$irradiat)
+
+```
+
+## Storing correlation matrix with updated column names
+```{r update_matrix}
+# Creating correlation matrix
+breast_cancer.corrmat <- as_tibble(breast_cancer.cor$correlations)
+
+# Assigning original column names to correlation matrix
+colnames(breast_cancer.corrmat) <- colnames(breast_cancer)
+
+# Viewing correlation matrix
+breast_cancer.corrmat
+```
+
+## Adding attribute names in a new column and reordering columns
+```{r tweaking_columns}
+breast_cancer.corrmat <- breast_cancer.corrmat %>% 
+  mutate(attribute=colnames(breast_cancer.corrmat)) %>% 
+  select(attribute, class, age, menopause, tumor_size, inv_nodes, node_caps, deg_malig, breast, breast_quad, irradiat)
+```
+
+## Printing the ranking
+```{r rank_order}
+rank <- breast_cancer.corrmat %>% 
+  select(attribute, class) %>% 
+  mutate(squared.correlation=class^2) %>%
+  arrange(desc(squared.correlation)) 
+
+rank
+```
+
+## Visualizing the correlation matrix in a correlogram
+
+```{r correlogram}
+corrplot(breast_cancer.cor$correlations, method="shade", type="upper", tl.col="black", tl.srt=45)
+```
