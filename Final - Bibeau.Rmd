@@ -20,6 +20,50 @@ library(useful)
 library(xgboost)
 library(vip)
 library(randomForest)
+
+# User-defined function to 
+# 1. calculate Shannon entropy for a given vector 
+# 2. visualize the distribution in a histogram
+
+entropy.gini <- function(input, type=1, discrete=1){
+  # a function to calculate Shannon entropy for a given vector
+  # type: 1- categories in integers, continuous values
+  # type: 2- class counts
+  # when type=1, discrete: 1-discrete labels, 0-continuous labels
+  
+  if (type==1){
+    if (discrete == 0){
+      breaks <- c(floor(min(input)):ceiling(max(input)))
+    } else {
+      breaks <- c(min(input):(max(input)+1))
+    }
+    freq <- hist(input,include.lowest=TRUE,right=FALSE, breaks=breaks,col='lightblue')
+    counts <- freq$counts
+    total <- sum(counts)
+    
+  }
+  else{
+    breaks <- length(input)
+    total <- sum(input)
+    counts <- input
+    hist(input)
+  }
+  
+  entropy <- 0
+  for(x in counts){
+    if(x!=0)
+      temp <- x/total*log2(x/total)
+    else
+      temp <- 0
+
+    entropy <- entropy - temp
+  }
+  
+  gini <- 1-sum((counts/total)**2)
+  
+  mylist <- list("breaks"=breaks,"entropy"=entropy,"gini"=gini)
+  return(mylist)
+}
 ```
 
 # 1.1 Importing Data
@@ -159,3 +203,333 @@ rank
 ```{r correlogram}
 corrplot(breast_cancer.cor$correlations, method="shade", type="upper", tl.col="black", tl.srt=45)
 ```
+
+# 1.6 Decision tree models
+
+## 1.6.1 Calculation information gain for each regular attribute
+
+### Computing entropy of dataset for gain calculations
+```{r total_entropy}
+#Finding counts for entropy calculation
+counts <- (breast_cancer %>% 
+  select(class) %>%
+  group_by(class) %>%
+  summarise(count=n())
+  )$count
+
+# Calculating entropy and gini
+entropy_set <-entropy.gini(counts)
+
+# The entropy for the entire dataset is: 
+entropy_set$entropy
+```
+
+### Calculating gain based on age
+
+#### Looking at distribution in terms of three subsets by age
+```{r subsetting_age}
+info.before <- entropy_set$entropy
+subsets.age <- table(breast_cancer$age, breast_cancer$class)
+subsets.age
+```
+
+#### Computing entropy of age subsets
+```{r entropy_age}
+entropy20_29 <-entropy.gini(subsets.age["20-29",], type=2)$entropy
+entropy30_39 <-entropy.gini(subsets.age["30-39",], type=2)$entropy
+entropy40_49 <-entropy.gini(subsets.age["40-49",], type=2)$entropy
+entropy50_59 <-entropy.gini(subsets.age["50-59",], type=2)$entropy
+entropy60_69 <-entropy.gini(subsets.age["60-69",], type=2)$entropy
+entropy70_79 <-entropy.gini(subsets.age["70-79",], type=2)$entropy
+```
+
+#### Computing weighted entropy for age
+```{r weighted_entropy_age}
+total <- nrow(breast_cancer)
+w20_29 <- sum(subsets.age["20-29",])/total
+w30_39 <- sum(subsets.age["30-39",])/total
+w40_49 <- sum(subsets.age["40-49",])/total
+w50_59 <- sum(subsets.age["50-59",])/total
+w60_69 <- sum(subsets.age["60-69",])/total
+w70_79 <- sum(subsets.age["70-79",])/total
+info.age <- w20_29*entropy20_29 + w30_39*entropy30_39 + w40_49*entropy40_49 + w50_59*entropy50_59 + w60_69*entropy60_69 + w70_79*entropy70_79
+```
+
+#### Computing information gain for age
+```{r information_gain_age}
+gain.age <- info.before - info.age
+gain.age
+```
+
+### Calculating gain based on menopause
+
+#### Looking at distribution in terms of three subsets by menopause
+```{r subsetting_menopause}
+subsets.menopause <- table(breast_cancer$menopause, breast_cancer$class)
+subsets.menopause
+```
+
+#### Computing entropy of menopause subsets
+```{r entropy_menopause}
+entropy_premeno <-entropy.gini(subsets.menopause["premeno",], type=2)$entropy
+entropy_ge40 <-entropy.gini(subsets.menopause["ge40",], type=2)$entropy
+entropy_lt40 <-entropy.gini(subsets.menopause["lt40",], type=2)$entropy
+
+```
+
+#### Computing weighted entropy for menopause
+```{r weighted_entropy_menopause}
+w_premeno <- sum(subsets.menopause["premeno",])/total
+w_ge40 <- sum(subsets.menopause["ge40",])/total
+w_lt40 <- sum(subsets.menopause["lt40",])/total
+info.menopause <- w_premeno*entropy_premeno + w_ge40*entropy_ge40 + w_lt40*entropy_lt40
+```
+
+#### Computing information gain for menopause
+```{r information_gain_menopause}
+gain.menopause <- info.before - info.menopause
+gain.menopause
+```
+
+### Calculating gain based on tumor size
+
+#### Looking at distribution in terms of three subsets by tumor size
+```{r subsetting_tumor_size}
+subsets.tumor_size <- table(breast_cancer$tumor_size, breast_cancer$class)
+subsets.tumor_size
+```
+
+#### Computing entropy of tumor size subsets
+```{r entropy_tumor_size}
+entropy_ts01 <-entropy.gini(subsets.tumor_size["0-4",], type=2)$entropy
+entropy_ts02 <-entropy.gini(subsets.tumor_size["5-9",], type=2)$entropy
+entropy_ts03 <-entropy.gini(subsets.tumor_size["10-14",], type=2)$entropy
+entropy_ts04 <-entropy.gini(subsets.tumor_size["15-19",], type=2)$entropy
+entropy_ts05 <-entropy.gini(subsets.tumor_size["20-24",], type=2)$entropy
+entropy_ts06 <-entropy.gini(subsets.tumor_size["25-29",], type=2)$entropy
+entropy_ts07 <-entropy.gini(subsets.tumor_size["30-34",], type=2)$entropy
+entropy_ts08 <-entropy.gini(subsets.tumor_size["35-39",], type=2)$entropy
+entropy_ts09 <-entropy.gini(subsets.tumor_size["40-44",], type=2)$entropy
+entropy_ts10 <-entropy.gini(subsets.tumor_size["45-49",], type=2)$entropy
+entropy_ts11 <-entropy.gini(subsets.tumor_size["50-54",], type=2)$entropy
+```
+
+#### Computing weighted entropy for tumor_size
+```{r weighted_entropy_tumor_size}
+w_ts01 <- sum(subsets.tumor_size["0-4",])/total
+w_ts02 <- sum(subsets.tumor_size["5-9",])/total
+w_ts03 <- sum(subsets.tumor_size["10-14",])/total
+w_ts04 <- sum(subsets.tumor_size["15-19",])/total
+w_ts05 <- sum(subsets.tumor_size["20-24",])/total
+w_ts06 <- sum(subsets.tumor_size["25-29",])/total
+w_ts07 <- sum(subsets.tumor_size["30-34",])/total
+w_ts08 <- sum(subsets.tumor_size["35-39",])/total
+w_ts09 <- sum(subsets.tumor_size["40-44",])/total
+w_ts10 <- sum(subsets.tumor_size["45-49",])/total
+w_ts11 <- sum(subsets.tumor_size["50-54",])/total
+info.tumor_size <- w_ts01*entropy_ts01 + w_ts02*entropy_ts02 + w_ts03*entropy_ts03 + w_ts04*entropy_ts04 + w_ts05*entropy_ts05 + w_ts06*entropy_ts06 + w_ts07*entropy_ts07 + w_ts08*entropy_ts08 + w_ts09*entropy_ts09 + w_ts10*entropy_ts10 + w_ts11*entropy_ts11
+```
+
+#### Computing information gain for tumor_size
+```{r information_gain_tumor_size}
+gain.tumor_size <- info.before - info.tumor_size
+gain.tumor_size
+```
+
+### Calculating gain based on inv_nodes
+
+#### Looking at distribution in terms of three subsets by inv_nodes
+```{r subsetting_inv_nodes}
+subsets.inv_nodes <- table(breast_cancer$inv_nodes, breast_cancer$class)
+subsets.inv_nodes
+```
+
+#### Computing entropy of inv_nodes subsein
+```{r entropy_inv_nodes}
+entropy_in01 <-entropy.gini(subsets.inv_nodes["0-2",], type=2)$entropy
+entropy_in02 <-entropy.gini(subsets.inv_nodes["3-5",], type=2)$entropy
+entropy_in03 <-entropy.gini(subsets.inv_nodes["6-8",], type=2)$entropy
+entropy_in04 <-entropy.gini(subsets.inv_nodes["9-11",], type=2)$entropy
+entropy_in05 <-entropy.gini(subsets.inv_nodes["12-14",], type=2)$entropy
+entropy_in06 <-entropy.gini(subsets.inv_nodes["15-17",], type=2)$entropy
+entropy_in07 <-entropy.gini(subsets.inv_nodes["24-26",], type=2)$entropy
+```
+
+#### Computing weighted entropy for inv_nodes
+```{r weighted_entropy_inv_nodes}
+w_in01 <- sum(subsets.inv_nodes["0-2",])/total
+w_in02 <- sum(subsets.inv_nodes["3-5",])/total
+w_in03 <- sum(subsets.inv_nodes["6-8",])/total
+w_in04 <- sum(subsets.inv_nodes["9-11",])/total
+w_in05 <- sum(subsets.inv_nodes["12-14",])/total
+w_in06 <- sum(subsets.inv_nodes["15-17",])/total
+w_in07 <- sum(subsets.inv_nodes["24-26",])/total
+info.inv_nodes <- w_in01*entropy_in01 + w_in02*entropy_in02 + w_in03*entropy_in03 + w_in04*entropy_in04 + w_in05*entropy_in05 + w_in06*entropy_in06 + w_in07*entropy_in07
+```
+
+#### Computing information gain for inv_nodes
+```{r information_gain_inv_nodes}
+gain.inv_nodes <- info.before - info.inv_nodes
+gain.inv_nodes
+```
+
+### Calculating gain based on node_caps
+
+#### Looking at distribution in terms of three subsets by node_caps
+```{r subsetting_node_caps}
+subsets.node_caps <- table(breast_cancer$node_caps, breast_cancer$class)
+subsets.node_caps
+```
+
+#### Computing entropy of node_caps subsets
+```{r entropy_node_caps}
+entropy_ncno <-entropy.gini(subsets.node_caps["no",], type=2)$entropy
+entropy_ncyes <-entropy.gini(subsets.node_caps["yes",], type=2)$entropy
+```
+
+#### Computing weighted entropy for node_caps
+```{r weighted_entropy_node_caps}
+w_ncno <- sum(subsets.node_caps["no",])/total
+w_ncyes <- sum(subsets.node_caps["yes",])/total
+info.node_caps <- w_ncno*entropy_ncno + w_ncyes*entropy_ncyes
+```
+
+#### Computing information gain for node_caps
+```{r information_gain_node_caps}
+gain.node_caps <- info.before - info.node_caps
+gain.node_caps
+```
+
+### Calculating gain based on deg_malig
+
+#### Looking at distribution in terms of three subsets by deg_malig
+```{r subsetting_deg_malig}
+subsets.deg_malig <- table(breast_cancer$deg_malig, breast_cancer$class)
+subsets.deg_malig
+```
+
+#### Computing entropy of deg_malig subsets
+```{r entropy_deg_malig}
+entropy_dm1 <-entropy.gini(subsets.deg_malig["1",], type=2)$entropy
+entropy_dm2 <-entropy.gini(subsets.deg_malig["2",], type=2)$entropy
+entropy_dm3 <-entropy.gini(subsets.deg_malig["3",], type=2)$entropy
+
+```
+
+#### Computing weighted entropy for deg_malig
+```{r weighted_entropy_deg_malig}
+w_dm1 <- sum(subsets.deg_malig["1",])/total
+w_dm2 <- sum(subsets.deg_malig["2",])/total
+w_dm3 <- sum(subsets.deg_malig["3",])/total
+info.deg_malig <- w_dm1*entropy_dm1 + w_dm2*entropy_dm2 + w_dm3*entropy_dm3
+```
+
+#### Computing information gain for deg_malig
+```{r information_gain_deg_malig}
+gain.deg_malig <- info.before - info.deg_malig
+gain.deg_malig
+```
+
+### Calculating gain based on breast
+
+#### Looking at distribution in terms of three subsets by breast
+```{r subsetting_breast}
+subsets.breast <- table(breast_cancer$breast, breast_cancer$class)
+subsets.breast
+```
+
+#### Computing entropy of breast subsets
+```{r entropy_breast}
+entropy_left <-entropy.gini(subsets.breast["left",], type=2)$entropy
+entropy_right <-entropy.gini(subsets.breast["right",], type=2)$entropy
+```
+
+#### Computing weighted entropy for breast
+```{r weighted_entropy_breast}
+w_left <- sum(subsets.breast["left",])/total
+w_right <- sum(subsets.breast["right",])/total
+info.breast <- w_left*entropy_left + w_right*entropy_right
+```
+
+#### Computing information gain for breast
+```{r information_gain_breast}
+gain.breast <- info.before - info.breast
+gain.breast
+```
+
+### Calculating gain based on breast quadrant
+
+#### Looking at distribution in terms of three subsets by breast_quad
+```{r subsetting_breast_quad}
+subsets.breast_quad <- table(breast_cancer$breast_quad, breast_cancer$class)
+subsets.breast_quad
+```
+
+#### Computing entropy of breast quadrant subsets
+```{r entropy_breast_quad}
+entropy_bq01 <-entropy.gini(subsets.breast_quad["central",], type=2)$entropy
+entropy_bq02 <-entropy.gini(subsets.breast_quad["left_low",], type=2)$entropy
+entropy_bq03 <-entropy.gini(subsets.breast_quad["left_up",], type=2)$entropy
+entropy_bq04 <-entropy.gini(subsets.breast_quad["right_low",], type=2)$entropy
+entropy_bq05 <-entropy.gini(subsets.breast_quad["right_up",], type=2)$entropy
+```
+
+#### Computing weighted entropy for breast quadrant
+```{r weighted_entropy_breast_quad}
+w_bq01 <- sum(subsets.breast_quad["central",])/total
+w_bq02 <- sum(subsets.breast_quad["left_low",])/total
+w_bq03 <- sum(subsets.breast_quad["left_up",])/total
+w_bq04 <- sum(subsets.breast_quad["right_low",])/total
+w_bq05 <- sum(subsets.breast_quad["right_up",])/total
+info.breast_quad <- w_bq01*entropy_bq01 + w_bq02*entropy_bq02 + w_bq03*entropy_bq03 + w_bq04*entropy_bq04 + w_bq05*entropy_bq05
+```
+
+#### Computing information gain for breast quadrant
+```{r information_gain_breast_quad}
+gain.breast_quad <- info.before - info.breast_quad
+gain.breast_quad
+```
+
+### Calculating gain based on irradiation
+
+#### Looking at distribution in terms of three subsets by irradiation
+```{r subsetting_irradiat}
+subsets.irradiat <- table(breast_cancer$irradiat, breast_cancer$class)
+subsets.irradiat
+```
+
+#### Computing entropy of irradiation subsets
+```{r entropy_irradiat}
+entropy_irrno <-entropy.gini(subsets.irradiat["no",], type=2)$entropy
+entropy_irryes <-entropy.gini(subsets.irradiat["yes",], type=2)$entropy
+```
+
+#### Computing weighted entropy for irradiation
+```{r weighted_entropy_irradiat}
+w_irrno <- sum(subsets.irradiat["no",])/total
+w_irryes <- sum(subsets.irradiat["yes",])/total
+info.irradiat <- w_irrno*entropy_irrno + w_irryes*entropy_irryes
+```
+
+#### Computing information gain for irradiation
+```{r information_gain_irradiat}
+gain.irradiat <- info.before - info.irradiat
+gain.irradiat
+```
+
+### Results: Choosing root node
+```{r choose_root_node}
+# Creating vector of gains for evaluation
+gains <- c(gain.age, gain.breast, gain.breast_quad, gain.deg_malig, gain.inv_nodes, gain.irradiat, gain.menopause, gain.node_caps, gain.tumor_size)
+
+# Creating vector of names
+gain_names <- c("age", "breast", "breast_quad", "deg_malig", "inv_nodes", "irradiat", "menopause", "node_caps", "tumor_size")
+
+# Creating named vector of gains
+names(gains) <- gain_names
+
+# Calculating maximum information gain
+# The attribute with the maximum information gain, which will serve as the root node in our decision tree, is:
+names(gains)[which.max(gains)]
+```
+
