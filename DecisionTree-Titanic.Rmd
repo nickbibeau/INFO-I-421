@@ -1,0 +1,172 @@
+---
+title: "Untitled"
+author: "Nicholas Bibeau"
+date: "4/22/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(DiagrammeR)
+library(useful)
+library(xgboost)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+# Import Data
+```{r import}
+train <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/train.csv", na = "NA", col_types = cols(
+  Survived = col_character(),
+  Pclass = col_character(),
+  Name = col_character(),
+  Sex = col_character(),
+  Age = col_double(),
+  SibSp = col_integer(),
+  ParentChild = col_integer(),
+  TicketNumber = col_character(),
+  Fare = col_double(),
+  Cabin = col_character(),
+  Port = col_character(),
+  LifeBoat = col_integer()
+))
+
+test <- read_csv("https://www.iun.edu/~cisjw/ds/files/data/test.csv", na = "NA", col_types = cols(
+  Survived = col_character(),
+  Pclass = col_character(),
+  Name = col_character(),
+  Sex = col_character(),
+  Age = col_double(),
+  SibSp = col_integer(),
+  ParentChild = col_integer(),
+  TicketNumber = col_character(),
+  Fare = col_double(),
+  Cabin = col_character(),
+  Port = col_character(),
+  LifeBoat = col_integer()
+)) 
+# Cleaning Data by dropping Cabin and LifeBoat columns, subsequently dropping na rows
+train <- train %>% select(-c("Cabin", "LifeBoat")) %>% drop_na
+test <- test %>% select(-c("Cabin", "LifeBoat")) %>% drop_na
+
+```
+
+# Run 1: method=information,minsplit=4
+```{r}
+# minsplit=4
+#set.seed(2001)
+tree.model <- rpart(formula = Survived~Pclass+Sex+Age+SibSp+ParentChild+Fare, 
+                    data = train,
+                    method = "class", 
+                    control = rpart.control(minsplit=100,cp=0.01),
+                    parms = list(split='information'))
+
+rpart.plot(tree.model,type = 4, extra = 2) #visual tree
+summary(tree.model) #textual tree
+print(tree.model) #decision rules
+```
+
+## Apply the tree to the test set
+Apply the tree model to predict the `play` label for the observations in the test set
+```{r}
+test$predict<- predict(tree.model, test, type="class")
+test %>% select(Survived,predict)
+```
+
+
+Alternatively, instead of a class label, tree can output the probability for each class
+```{r}
+predict.prob <- predict(tree.model, test, type = "prob")
+predict.prob #a matrix
+```
+
+## Evaluate accuracy by counting correct predictions
+```{r}
+accuracy <- nrow(test[test$Survived==test$predict,])/nrow(test)
+accuracy
+```
+
+
+##Preboost Data Cleaning
+```{r}
+train <- train %>% mutate(surv_label=ifelse(Survived=="Yes",1,0))
+```
+
+
+## Boosted tree
+Reference: R4Everyone Page 361. Code on page 362
+
+```{r}
+#RESPONSE MUST BE 0 AND 1.
+#Survived~,
+trainFormula <- surv_label~Pclass+Sex+Age+SibSp+ParentChild+Fare
+trainX <- build.x(trainFormula,train,contrasts=FALSE)
+trainY <- build.y(trainFormula,train)
+trainBoost <- xgboost::xgboost(
+  data=trainX,
+  label=trainY,
+  max.depth=3,
+  eta=0.3,
+  #nthread=4,
+  nrounds=10,
+  objective="binary:logistic")
+xgb.plot.multi.trees(
+  trainBoost,
+  feature.names=colnames(trainX)
+)
+```
+
+### Single tree plots
+```{r}
+#install.packages(rsvg)
+#install.packages(DiagrammeRsvg)
+library(DiagrammeR)
+xgb.plot.tree(model=trainBoost, trees=2:3, render=TRUE)
+```
+
+### Variable importance
+```{r}
+importance_matrix <- xgb.importance(
+  model = trainBoost,
+  feature_names =colnames(trainX)
+  )
+print(importance_matrix)
+xgb.plot.importance(importance_matrix = importance_matrix)
+#Alternative
+vip::vip(trainBoost,num_features=10)
+```
+
+## Random forest
+R4Everyone Page 364
+```{r}
+library(randomForest)
+trainFormula <- surv_label~Pclass+Sex+Age+SibSp+ParentChild+Fare 
+trainX <- build.x(trainFormula,train,contrasts=FALSE)
+trainY <- build.y(trainFormula,train)
+trainForest <- randomForest(x=trainX,y=trainY)
+trainForest
+```
+
+## Boosted Random forest via xgboost
+```{r}
+trainY <- build.y(trainFormula,train)
+boostedForest <- xgboost(
+  data=trainX,
+  label=trainY,
+  max_depth=4,
+  num_parallel_tree=1000,
+  subsample=0.5,
+  colsample_bytree=0.5,
+  nrounds=3,
+  objective="binary:logistic"
+)
+xgb.plot.multi.trees(
+  boostedForest,
+  feature.names=colnames(trainX)
+)
+```
