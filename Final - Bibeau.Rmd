@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, error = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(polycor)
 library(corrplot)
@@ -591,7 +591,7 @@ test <- breast_cancer[split+1:nrow(breast_cancer), ]
 ```
 
 ### Creating boosted tree
-```{r boosted_tree, warning=FALSE, error=FALSE}
+```{r boosted_tree}
 trainFormula <- recur_label~deg_malig+age+breast+breast_quad+inv_nodes+irradiat+menopause+node_caps+tumor_size
 trainX <- build.x(trainFormula,train,contrasts=FALSE)
 trainY <- build.y(trainFormula,train)
@@ -629,7 +629,7 @@ vip::vip(trainBoost,num_features=18)
 ```
 
 ## 1.6.5 Constructing random forest model
-```{r random_forest, warning=FALSE, error=FALSE}
+```{r random_forest}
 trainY <- build.y(trainFormula,train)
 boostedForest <- xgboost(
   data=trainX,
