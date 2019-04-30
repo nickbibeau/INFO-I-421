@@ -5,12 +5,13 @@ date: "April 29, 2019"
 output: 
   html_document:
     toc: TRUE
+    toc_depth: 3
     toc_float: TRUE
     theme: united
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, error = FALSE, warning = FALSE)
 library(tidyverse)
 library(polycor)
 library(corrplot)
@@ -69,7 +70,11 @@ entropy.gini <- function(input, type=1, discrete=1){
 
 # 1.1 Importing Data
 ```{r data_import}
-breast_cancer <- as_tibble(read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer/breast-cancer.data", header = FALSE, na = "?", sep = ",", col.names=c("class", "age", "menopause", "tumor_size", "inv_nodes", "node_caps", "deg_malig", "breast", "breast_quad", "irradiat")))
+breast_cancer <- as_tibble(read.table(
+  "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer/breast-cancer.data", 
+  header = FALSE, na = "?", sep = ",", col.names=c(
+    "class", "age", "menopause", "tumor_size", "inv_nodes", "node_caps", 
+    "deg_malig", "breast", "breast_quad", "irradiat")))
 ```
 
 # 1.2 Finding the age category which has the highest risk of recurrence
@@ -164,7 +169,7 @@ breast_cancer <- breast_cancer %>% drop_na()
 # 1.5 Rank attributes and plot correlation matrix
 
 ## Building correlation matrix
-```{r correlation_matrix}
+```{r correlation_matrix, message=FALSE, warnings=FALSE}
 # All vectors in breast_cancer dataset are numeric or factors, so no mutations are necessary.
 breast_cancer.cor <- hetcor(breast_cancer$class, breast_cancer$age, breast_cancer$menopause, breast_cancer$tumor_size, breast_cancer$inv_nodes, breast_cancer$node_caps, breast_cancer$deg_malig, breast_cancer$breast, breast_cancer$breast_quad, breast_cancer$irradiat)
 
@@ -559,7 +564,7 @@ rpart.plot(fit,type=4,extra=2,roundint=FALSE)
 ```
 
 ### Comparison of decision trees
-```{r}
+```{r comparing_trees}
 # The decision tree created with default settings has a height of 7, while the decision tree created with custom settings has a height of 8. The default tree will yield a faster speed of prediction, and will not be as likely to be overfitting of our sample data. However, further testing will likely generate a tree that is less subject to overfitting with a faster speed of prediction.
 ```
 
@@ -586,7 +591,7 @@ test <- breast_cancer[split+1:nrow(breast_cancer), ]
 ```
 
 ### Creating boosted tree
-```{r boosted_tree}
+```{r boosted_tree, warning=FALSE, error=FALSE}
 trainFormula <- recur_label~deg_malig+age+breast+breast_quad+inv_nodes+irradiat+menopause+node_caps+tumor_size
 trainX <- build.x(trainFormula,train,contrasts=FALSE)
 trainY <- build.y(trainFormula,train)
@@ -598,10 +603,7 @@ trainBoost <- xgboost::xgboost(
   #nthread=4,
   nrounds=10,
   objective="binary:logistic")
-xgb.plot.multi.trees(
-  trainBoost,
-  feature.names=colnames(trainX)
-)
+xgb.plot.multi.trees(trainBoost, feature_names=colnames(trainX))
 ```
 
 ### Single tree plots
@@ -627,7 +629,7 @@ vip::vip(trainBoost,num_features=18)
 ```
 
 ## 1.6.5 Constructing random forest model
-```{r}
+```{r random_forest, warning=FALSE, error=FALSE}
 trainY <- build.y(trainFormula,train)
 boostedForest <- xgboost(
   data=trainX,
@@ -641,6 +643,6 @@ boostedForest <- xgboost(
 )
 xgb.plot.multi.trees(
   boostedForest,
-  feature.names=colnames(trainX)
+  feature_names=colnames(trainX)
 )
 ```
